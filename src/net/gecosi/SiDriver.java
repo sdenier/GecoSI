@@ -1,0 +1,50 @@
+/**
+ * Copyright (c) 2013 Simon Denier
+ */
+package net.gecosi;
+
+import java.io.IOException;
+import java.util.TooManyListenersException;
+import java.util.concurrent.ArrayBlockingQueue;
+
+/**
+ * @author Simon Denier
+ * @since Feb 13, 2013
+ *
+ */
+public class SiDriver implements Runnable {
+
+	private SiPort siPort;
+	private CommWriter writer;
+	private ArrayBlockingQueue<SiMessage> messageQueue;
+	private Thread thread;
+	private SiHandler siHandler;
+
+	public SiDriver(SiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
+		messageQueue = new ArrayBlockingQueue<SiMessage>(10);
+		this.siHandler = siHandler;
+		this.siPort = siPort.initReader(messageQueue);
+		this.writer = siPort.getWriter();
+	}
+
+	public void start() {
+		thread = new Thread(this);
+		thread.start();
+	}
+
+	public void run() {
+		try {
+			DriverState currentState = DriverState.STARTUP.send(writer);
+			while (!thread.isInterrupted()) {
+				currentState = currentState.receive(messageQueue, writer, siHandler);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
