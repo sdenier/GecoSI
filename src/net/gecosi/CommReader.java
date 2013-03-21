@@ -9,7 +9,6 @@ import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * @author Simon Denier
@@ -21,9 +20,9 @@ public class CommReader implements SerialPortEventListener {
 	public static final int MAX_MESSAGE_SIZE = 139;
 
 	private InputStream input;
-	private ArrayBlockingQueue<SiMessage> messageQueue;
+	private SiMessageQueue messageQueue;
 
-	public CommReader(InputStream input, ArrayBlockingQueue<SiMessage> messageQueue) {
+	public CommReader(InputStream input, SiMessageQueue messageQueue) {
 		this.input = input;
 		this.messageQueue = messageQueue;
 	}

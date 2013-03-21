@@ -5,7 +5,7 @@ package net.gecosi;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author Simon Denier
@@ -14,14 +14,14 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class SiDriver implements Runnable {
 
-	private SiPort siPort;
-	private CommWriter writer;
-	private ArrayBlockingQueue<SiMessage> messageQueue;
+	private ISiPort siPort;
+	private ICommWriter writer;
+	private SiMessageQueue messageQueue;
 	private Thread thread;
 	private SiHandler siHandler;
 
-	public SiDriver(SiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
-		messageQueue = new ArrayBlockingQueue<SiMessage>(10);
+	public SiDriver(ISiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
+		messageQueue = new SiMessageQueue(10);
 		this.siHandler = siHandler;
 		this.siPort = siPort.initReader(messageQueue);
 		this.writer = siPort.getWriter();
@@ -42,6 +42,12 @@ public class SiDriver implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidMessage e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

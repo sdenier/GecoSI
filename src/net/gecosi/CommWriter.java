@@ -11,7 +11,7 @@ import java.io.OutputStream;
  * @since Mar 10, 2013
  *
  */
-public class CommWriter {
+public class CommWriter implements ICommWriter {
 
 	private OutputStream output;
 

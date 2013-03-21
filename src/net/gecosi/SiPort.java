@@ -7,14 +7,13 @@ import gnu.io.SerialPort;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * @author Simon Denier
  * @since Mar 10, 2013
  *
  */
-public class SiPort {
+public class SiPort implements ISiPort {
 
 	private SerialPort port;
 
@@ -26,13 +25,13 @@ public class SiPort {
 		return port;
 	}
 	
-	public SiPort initReader(ArrayBlockingQueue<SiMessage> messageQueue) throws TooManyListenersException, IOException {
+	public ISiPort initReader(SiMessageQueue messageQueue) throws TooManyListenersException, IOException {
 		port.addEventListener(new CommReader(port.getInputStream(), messageQueue));
 		port.notifyOnDataAvailable(true);
 		return this;
 	}
 	
-	public CommWriter getWriter() throws IOException {
+	public ICommWriter getWriter() throws IOException {
 		return new CommWriter(port.getOutputStream());
 	}
 	
