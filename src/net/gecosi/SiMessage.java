@@ -45,7 +45,7 @@ public class SiMessage {
 
 	public int extractCRC() {
 		int i = sequence.length;
-		return (sequence[i-3] << 8) | (sequence[i-2] & 0xFF); 
+		return (sequence[i-3] << 8 & 0xFFFF) | (sequence[i-2] & 0xFF); 
 	}
 	
 	public int computeCRC() {
@@ -80,7 +80,7 @@ public class SiMessage {
 			return "none";
 		}
 	}
-	
+
 
 	/*
 	 * Basic protocol instructions
