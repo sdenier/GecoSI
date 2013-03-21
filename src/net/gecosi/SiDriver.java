@@ -14,13 +14,13 @@ import java.util.concurrent.TimeoutException;
  */
 public class SiDriver implements Runnable {
 
-	private ISiPort siPort;
-	private ICommWriter writer;
+	private SiPort siPort;
+	private CommWriter writer;
 	private SiMessageQueue messageQueue;
 	private Thread thread;
 	private SiHandler siHandler;
 
-	public SiDriver(ISiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
+	public SiDriver(SiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
 		messageQueue = new SiMessageQueue(10);
 		this.siHandler = siHandler;
 		this.siPort = siPort.initReader(messageQueue);

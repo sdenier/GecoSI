@@ -15,14 +15,14 @@ import java.util.Arrays;
  * @since Feb 13, 2013
  *
  */
-public class CommReader implements SerialPortEventListener {
+public class RxtxCommReader implements SerialPortEventListener {
 
 	public static final int MAX_MESSAGE_SIZE = 139;
 
 	private InputStream input;
 	private SiMessageQueue messageQueue;
 
-	public CommReader(InputStream input, SiMessageQueue messageQueue) {
+	public RxtxCommReader(InputStream input, SiMessageQueue messageQueue) {
 		this.input = input;
 		this.messageQueue = messageQueue;
 	}

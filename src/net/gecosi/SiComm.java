@@ -59,7 +59,7 @@ public class SiComm {
 			
 			SiHandler siHandler = new SiHandler(siListener);
 			siHandler.start();
-			new SiDriver(new SiPort(port), siHandler).start();
+			new SiDriver(new RxtxPort(port), siHandler).start();
 			
 //			siPort.close();
 		}

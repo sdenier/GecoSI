@@ -3,36 +3,18 @@
  */
 package net.gecosi;
 
-import gnu.io.SerialPort;
-
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
 /**
  * @author Simon Denier
- * @since Mar 10, 2013
+ * @since Mar 14, 2013
  *
  */
-public class SiPort implements ISiPort {
+public interface SiPort {
 
-	private SerialPort port;
+	public SiPort initReader(SiMessageQueue messageQueue) throws TooManyListenersException, IOException;
 
-	public SiPort(SerialPort port) {
-		this.port = port;
-	}
-	
-	public SerialPort getPort() {
-		return port;
-	}
-	
-	public ISiPort initReader(SiMessageQueue messageQueue) throws TooManyListenersException, IOException {
-		port.addEventListener(new CommReader(port.getInputStream(), messageQueue));
-		port.notifyOnDataAvailable(true);
-		return this;
-	}
-	
-	public ICommWriter getWriter() throws IOException {
-		return new CommWriter(port.getOutputStream());
-	}
-	
+	public CommWriter getWriter() throws IOException;
+
 }

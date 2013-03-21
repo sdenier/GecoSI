@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
 
-import net.gecosi.ICommWriter;
+import net.gecosi.CommWriter;
 import net.gecosi.DriverState;
 import net.gecosi.InvalidMessage;
 import net.gecosi.SiHandler;
@@ -31,7 +31,7 @@ public class SiDriverStateTest {
 	private SiMessageQueue queue;
 
 	@Mock
-	private ICommWriter writer;
+	private CommWriter writer;
 	
 	@Mock
 	private SiHandler siHandler;
