@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommWriter;
-import net.gecosi.DriverState;
+import net.gecosi.SiDriverState;
 import net.gecosi.InvalidMessage;
 import net.gecosi.SiHandler;
 import net.gecosi.SiMessage;
@@ -46,21 +46,21 @@ public class SiDriverStateTest {
 	public void STARTUP_CHECK() throws Exception {
 		SiMessage startup_answer = new SiMessage(new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03});
 		queue.add(startup_answer);
-		DriverState nextState = DriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 
-		assertThat(nextState, equalTo(DriverState.CONFIG_CHECK));
+		assertThat(nextState, equalTo(SiDriverState.CONFIG_CHECK));
 		verify(writer).write_debug(SiMessage.get_protocol_configuration);
 	}
 
 	@Test(expected=TimeoutException.class)
 	public void STARTUP_CHECK_throws_TimeoutException() throws Exception {
-		DriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
+		SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 	}
 
 	@Test(expected=InvalidMessage.class)
 	public void STARTUP_CHECK_throws_InvalidMessage() throws Exception {
 		queue.add(SiMessage.ack_sequence);
-		DriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
+		SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 	}
 
 }

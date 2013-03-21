@@ -34,7 +34,7 @@ public class SiDriver implements Runnable {
 
 	public void run() {
 		try {
-			DriverState currentState = DriverState.STARTUP.send(writer);
+			SiDriverState currentState = SiDriverState.STARTUP.send(writer);
 			while (!thread.isInterrupted()) {
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}

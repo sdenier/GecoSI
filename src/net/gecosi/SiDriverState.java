@@ -11,17 +11,17 @@ import java.util.concurrent.TimeoutException;
  * @since Mar 10, 2013
  *
  */
-public enum DriverState {
+public enum SiDriverState {
 
 	STARTUP {
-		public DriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.startup_sequence);
 			return STARTUP_CHECK;
 		}
 	},
 
 	STARTUP_CHECK {
-		public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			pollAnswer(queue, SiMessage.SET_MASTER_MODE);
 			return GET_CONFIG.send(writer);
@@ -29,14 +29,14 @@ public enum DriverState {
 	},
 
 	GET_CONFIG {
-		public DriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.get_protocol_configuration);
 			return CONFIG_CHECK;
 		}
 	},
 
 	CONFIG_CHECK {
-		public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			// TODO: check extended protocol
@@ -45,7 +45,7 @@ public enum DriverState {
 	},
 
 	DISPATCH_READY {
-		public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
 			System.out.println("** DISPATCH READY **");
 			System.out.flush();
@@ -62,14 +62,14 @@ public enum DriverState {
 	},
 	
 	READ_SICARD_5 {
-		public DriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.read_sicard_5);
 			return WAIT_SICARD_5_DATA;
 		}
 	},
 	
 	WAIT_SICARD_5_DATA {
-		public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException {
 			SiMessage message = queue.timeoutPoll();
 			// TODO error | sicard_removed --> reset
@@ -83,14 +83,14 @@ public enum DriverState {
 	},
 	
 	ACK_READ {
-		public DriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.ack_sequence);
 			return WAIT_SICARD_REMOVAL;
 		}		
 	},
 	
 	WAIT_SICARD_REMOVAL {
-		public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException {
 			SiMessage message = queue.timeoutPoll();
 			// TODO NAK then SI_CARD_REMOVED?
@@ -99,12 +99,12 @@ public enum DriverState {
 		}		
 	};
 
-	public DriverState send(CommWriter writer) throws IOException {
+	public SiDriverState send(CommWriter writer) throws IOException {
 		wrongCall();
 		return this;
 	}
 
-	public DriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+	public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 			throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 		wrongCall();
 		return this;
