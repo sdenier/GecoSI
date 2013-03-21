@@ -3,6 +3,8 @@
  */
 package net.gecosi;
 
+import gnu.io.UnsupportedCommOperationException;
+
 import java.io.IOException;
 import java.util.TooManyListenersException;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +36,7 @@ public class SiDriver implements Runnable {
 
 	public void run() {
 		try {
-			SiDriverState currentState = SiDriverState.STARTUP.send(writer);
+			SiDriverState currentState = startupProtocol();
 			while (!thread.isInterrupted()) {
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}
@@ -50,7 +52,26 @@ public class SiDriver implements Runnable {
 		} catch (InvalidMessage e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (UnsupportedCommOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	}
+
+	public SiDriverState startupProtocol()
+			throws UnsupportedCommOperationException, IOException, InterruptedException, InvalidMessage, TimeoutException {
+		try {
+			siPort.setHighSpeed();
+			return startup();
+		} catch (TimeoutException e) {
+			siPort.setLowSpeed();
+			return startup();
+		}
+	}
+
+	private SiDriverState startup()
+			throws IOException, InterruptedException, TimeoutException, InvalidMessage {
+		return SiDriverState.STARTUP.send(writer).receive(messageQueue, writer, siHandler);
 	}
 
 }

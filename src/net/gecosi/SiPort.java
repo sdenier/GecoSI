@@ -3,6 +3,8 @@
  */
 package net.gecosi;
 
+import gnu.io.UnsupportedCommOperationException;
+
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
@@ -17,4 +19,8 @@ public interface SiPort {
 
 	public CommWriter getWriter() throws IOException;
 
+	public void setHighSpeed() throws UnsupportedCommOperationException;
+	
+	public void setLowSpeed() throws UnsupportedCommOperationException;
+	
 }

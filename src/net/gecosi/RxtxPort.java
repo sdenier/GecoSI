@@ -4,6 +4,7 @@
 package net.gecosi;
 
 import gnu.io.SerialPort;
+import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
@@ -33,6 +34,18 @@ public class RxtxPort implements SiPort {
 	
 	public CommWriter getWriter() throws IOException {
 		return new RxtxCommWriter(port.getOutputStream());
+	}
+
+	public void setHighSpeed() throws UnsupportedCommOperationException {
+		setSpeed(38400);		
+	}
+
+	public void setLowSpeed() throws UnsupportedCommOperationException {
+		setSpeed(4800);		
+	}
+
+	public void setSpeed(int baudRate) throws UnsupportedCommOperationException {
+		port.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 	}
 	
 }

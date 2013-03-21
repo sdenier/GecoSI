@@ -7,7 +7,6 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
-import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
@@ -35,9 +34,6 @@ public class SiComm {
 		} catch (PortInUseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (UnsupportedCommOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -47,18 +43,18 @@ public class SiComm {
 		}
 	}
 
-	public void connect(String portname, SiListener siListener) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException {
+	public void connect(String portname, SiListener siListener)
+			throws NoSuchPortException, PortInUseException, IOException, TooManyListenersException {
 		CommPortIdentifier portId = CommPortIdentifier.getPortIdentifier(portname);
 		if( portId.isCurrentlyOwned() ) {
 			System.err.println("owner error");
 		} else {
-			SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
-			port.setSerialPortParams(38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-			// TODO: init with lower speed (failed startup?)
 			// CommStatus: STOPPED/OFF, STARTING?, START_FAILED, READY, ERROR
 			
 			SiHandler siHandler = new SiHandler(siListener);
 			siHandler.start();
+
+			SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
 			new SiDriver(new RxtxPort(port), siHandler).start();
 			
 //			siPort.close();
