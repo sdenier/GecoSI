@@ -10,6 +10,6 @@ package net.gecosi;
  */
 public enum CommStatus {
 
-	OFF, STARTING, READY, ERROR
+	OFF, STARTING, READY, PROCESSING, PROCESSING_ERROR, FATAL_ERROR
 	
 }

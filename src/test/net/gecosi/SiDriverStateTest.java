@@ -5,6 +5,7 @@ package test.net.gecosi;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
@@ -69,7 +70,6 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
-		verify(siHandler).notify(CommStatus.READY);
 	}
 
 	@Test
@@ -78,6 +78,41 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_ERROR));
+	}
+
+	@Test
+	public void DISPATCH_READY() throws Exception {
+		queue.add(SiMessageFixtures.sicard5_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(siHandler).notify(CommStatus.READY);
+	}
+
+	@Test
+	public void DISPATCH_READY_dispatchesSiCard5() throws Exception {
+		queue.add(SiMessageFixtures.sicard5_detected);
+		SiDriverState nextState = SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_5_DATA));
+		verify(writer).write_debug(SiMessage.read_sicard_5);
+	}
+	
+	@Test
+	public void WAIT_SICARD_5_DATA() throws Exception {
+		queue.add(SiMessageFixtures.sicard5_data);
+		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+
+		verify(writer).write_debug(SiMessage.ack_sequence);
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
+	}
+
+	@Test
+	public void WAIT_SICARD_5_DATA_removedFallbackToDispatchReady() {
+		fail();
+	}
+
+	@Test
+	public void WAIT_SICARD_5_DATA_timeoutFallbackToDispatchReady() {
+		fail();
 	}
 
 }

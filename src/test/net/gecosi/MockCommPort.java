@@ -6,6 +6,7 @@ package test.net.gecosi;
 import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.TooManyListenersException;
 
 import net.gecosi.CommWriter;
@@ -22,20 +23,23 @@ public class MockCommPort implements SiPort {
 
 	private MockComm comm;
 	
+	private SiMessageQueue messageQueue;
+	
 	/**
-	 * 
+	 * Constructor for timeout (empty queue)
 	 */
 	public MockCommPort() {
 		this(new SiMessage[0]);
 	}
 
 	public MockCommPort(SiMessage[] siMessages) {
-		this.comm = new MockComm(siMessages);
+		comm = new MockComm();
+		messageQueue = new SiMessageQueue(siMessages.length + 1, 1);
+		messageQueue.addAll(Arrays.asList(siMessages));
+		
 	}
 
 	public SiMessageQueue createMessageQueue() throws TooManyListenersException, IOException {
-		SiMessageQueue messageQueue = new SiMessageQueue(10, 1);
-		this.comm.setQueue(messageQueue);
 		return messageQueue;
 	}
 
@@ -44,26 +48,7 @@ public class MockCommPort implements SiPort {
 	}
 
 	public class MockComm implements CommWriter {
-
-		private SiMessageQueue queue;
-		private int index;
-		private SiMessage[] answers = new SiMessage[0];
-
-		public MockComm(SiMessage[] siMessages) {
-			this.index = 0;
-			this.answers = siMessages;
-		}
-		
-		public void setQueue(SiMessageQueue messageQueue) {
-			this.queue = messageQueue;
-		}
-
-		public void write_debug(SiMessage message) throws IOException {
-			if( index < answers.length ){
-				this.queue.add(answers[index++]);
-			}
-		}
-
+		public void write_debug(SiMessage message) throws IOException {}
 	}
 
 	public void setupHighSpeed() throws UnsupportedCommOperationException {}

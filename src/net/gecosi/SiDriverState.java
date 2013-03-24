@@ -47,7 +47,6 @@ public enum SiDriverState {
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
-				siHandler.notify(CommStatus.READY);
 				return DISPATCH_READY;
 			} else {
 				return EXTENDED_PROTOCOL_ERROR;
@@ -65,9 +64,9 @@ public enum SiDriverState {
 	DISPATCH_READY {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			System.out.println("** DISPATCH READY **");
-			System.out.flush();
+			siHandler.notify(CommStatus.READY);
 			SiMessage message = queue.take();
+			siHandler.notify(CommStatus.PROCESSING);
 			switch (message.commandByte()) {
 			case SiMessage.SI_CARD_5_DETECTED:
 				return READ_SICARD_5.send(writer);
@@ -95,6 +94,7 @@ public enum SiDriverState {
 				 siHandler.notify(new Si5DataFrame(message));
 				 return ACK_READ.send(writer);
 			 } else {
+				 siHandler.notify(CommStatus.PROCESSING_ERROR);
 				 return DISPATCH_READY;
 			 }
 		}

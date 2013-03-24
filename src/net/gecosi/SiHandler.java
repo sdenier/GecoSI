@@ -33,7 +33,7 @@ public class SiHandler implements Runnable {
 
 	public void notify(CommStatus status) {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Status -> " + status);
 	}
 
 	public void notifyError(CommStatus errorStatus, String errorMessage) {

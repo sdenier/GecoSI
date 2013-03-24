@@ -45,7 +45,7 @@ public class SiDriver implements Runnable {
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}
 			if( currentState.isError() ) {
-				siHandler.notifyError(CommStatus.ERROR, currentState.status());
+				siHandler.notifyError(CommStatus.FATAL_ERROR, currentState.status());
 			}
 		} catch (InterruptedException e) {
 			// TODO normal way out?
