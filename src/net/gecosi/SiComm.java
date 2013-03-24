@@ -18,9 +18,6 @@ import java.util.TooManyListenersException;
  */
 public class SiComm {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		try {
 			new SiComm().connect("/dev/tty.SLAB_USBtoUART", new SiListener() {
@@ -28,17 +25,7 @@ public class SiComm {
 					dataFrame.printString();
 				}
 			});
-		} catch (NoSuchPortException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PortInUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TooManyListenersException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,15 +36,11 @@ public class SiComm {
 		if( portId.isCurrentlyOwned() ) {
 			System.err.println("owner error");
 		} else {
-			// CommStatus: STOPPED/OFF, STARTING?, START_FAILED, READY, ERROR
-			
 			SiHandler siHandler = new SiHandler(siListener);
 			siHandler.start();
 
 			SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
 			new SiDriver(new RxtxPort(port), siHandler).start();
-			
-//			siPort.close();
 		}
 	}
 

@@ -30,6 +30,11 @@ public class SiHandler implements Runnable {
 	public void notify(Si5DataFrame data) {
 		dataQueue.offer(data); // TODO check true
 	}
+
+	public void notify(CommStatus status) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	public void run() {
 		try {

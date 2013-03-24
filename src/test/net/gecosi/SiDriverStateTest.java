@@ -10,8 +10,8 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommWriter;
-import net.gecosi.SiDriverState;
 import net.gecosi.InvalidMessage;
+import net.gecosi.SiDriverState;
 import net.gecosi.SiHandler;
 import net.gecosi.SiMessage;
 import net.gecosi.SiMessageQueue;
@@ -35,7 +35,7 @@ public class SiDriverStateTest {
 	
 	@Mock
 	private SiHandler siHandler;
-	
+
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
@@ -44,8 +44,7 @@ public class SiDriverStateTest {
 	
 	@Test
 	public void STARTUP_CHECK() throws Exception {
-		SiMessage startup_answer = new SiMessage(new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03});
-		queue.add(startup_answer);
+		queue.add(SiMessageFixtures.startup_answer);
 		SiDriverState nextState = SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.CONFIG_CHECK));
