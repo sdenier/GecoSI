@@ -23,15 +23,19 @@ public class SiDriver implements Runnable {
 	private SiHandler siHandler;
 
 	public SiDriver(SiPort siPort, SiHandler siHandler) throws TooManyListenersException, IOException {
-		messageQueue = new SiMessageQueue(10);
+		this.siPort = siPort;
+		this.messageQueue = siPort.createMessageQueue();
+		this.writer = siPort.createWriter();
 		this.siHandler = siHandler;
-		this.siPort = siPort.initReader(messageQueue);
-		this.writer = siPort.getWriter();
 	}
 
 	public void start() {
 		thread = new Thread(this);
 		thread.start();
+	}
+
+	public void interrupt() {
+		thread.interrupt();
 	}
 
 	public void run() {
@@ -47,8 +51,7 @@ public class SiDriver implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			stop();
 		} catch (InvalidMessage e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,20 +61,27 @@ public class SiDriver implements Runnable {
 		}
 	}
 
-	public SiDriverState startupProtocol()
+	private SiDriverState startupProtocol()
 			throws UnsupportedCommOperationException, IOException, InterruptedException, InvalidMessage, TimeoutException {
 		try {
-			siPort.setHighSpeed();
+			siHandler.notify(CommStatus.STARTING);
+			siPort.setupHighSpeed();
 			return startup();
 		} catch (TimeoutException e) {
-			siPort.setLowSpeed();
+			siPort.setupLowSpeed();
 			return startup();
 		}
 	}
 
 	private SiDriverState startup()
 			throws IOException, InterruptedException, TimeoutException, InvalidMessage {
-		return SiDriverState.STARTUP.send(writer).receive(messageQueue, writer, siHandler);
+		SiDriverState currentState = SiDriverState.STARTUP.send(writer).receive(messageQueue, writer, siHandler);
+		return currentState;
+	}
+
+	private void stop() {
+		siPort.close();
+		siHandler.notify(CommStatus.OFF);
 	}
 
 }

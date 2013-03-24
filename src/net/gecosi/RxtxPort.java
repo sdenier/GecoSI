@@ -26,26 +26,32 @@ public class RxtxPort implements SiPort {
 		return port;
 	}
 	
-	public SiPort initReader(SiMessageQueue messageQueue) throws TooManyListenersException, IOException {
+	public SiMessageQueue createMessageQueue() throws TooManyListenersException, IOException {
+		SiMessageQueue messageQueue = new SiMessageQueue(10);
 		port.addEventListener(new RxtxCommReader(port.getInputStream(), messageQueue));
 		port.notifyOnDataAvailable(true);
-		return this;
+		return messageQueue;
 	}
 	
-	public CommWriter getWriter() throws IOException {
+	public CommWriter createWriter() throws IOException {
 		return new RxtxCommWriter(port.getOutputStream());
 	}
 
-	public void setHighSpeed() throws UnsupportedCommOperationException {
+	public void setupHighSpeed() throws UnsupportedCommOperationException {
 		setSpeed(38400);		
 	}
 
-	public void setLowSpeed() throws UnsupportedCommOperationException {
+	public void setupLowSpeed() throws UnsupportedCommOperationException {
 		setSpeed(4800);		
 	}
 
 	public void setSpeed(int baudRate) throws UnsupportedCommOperationException {
 		port.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+	}
+
+	public void close() {
+		// TODO: close streams?
+		port.close();
 	}
 	
 }

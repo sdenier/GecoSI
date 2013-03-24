@@ -15,12 +15,14 @@ import java.util.TooManyListenersException;
  */
 public interface SiPort {
 
-	public SiPort initReader(SiMessageQueue messageQueue) throws TooManyListenersException, IOException;
+	public SiMessageQueue createMessageQueue() throws TooManyListenersException, IOException;
 
-	public CommWriter getWriter() throws IOException;
+	public CommWriter createWriter() throws IOException;
 
-	public void setHighSpeed() throws UnsupportedCommOperationException;
+	public void setupHighSpeed() throws UnsupportedCommOperationException;
 	
-	public void setLowSpeed() throws UnsupportedCommOperationException;
-	
+	public void setupLowSpeed() throws UnsupportedCommOperationException;
+
+	public void close();
+
 }
