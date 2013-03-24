@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
 
+import net.gecosi.CommStatus;
 import net.gecosi.CommWriter;
 import net.gecosi.InvalidMessage;
 import net.gecosi.SiDriverState;
@@ -47,19 +48,36 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.startup_answer);
 		SiDriverState nextState = SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 
-		assertThat(nextState, equalTo(SiDriverState.CONFIG_CHECK));
+		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_CHECK));
 		verify(writer).write_debug(SiMessage.get_protocol_configuration);
 	}
 
 	@Test(expected=TimeoutException.class)
-	public void STARTUP_CHECK_throws_TimeoutException() throws Exception {
+	public void STARTUP_CHECK_throwsTimeoutException() throws Exception {
 		SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 	}
 
 	@Test(expected=InvalidMessage.class)
-	public void STARTUP_CHECK_throws_InvalidMessage() throws Exception {
+	public void STARTUP_CHECK_throwsInvalidMessage() throws Exception {
 		queue.add(SiMessage.ack_sequence);
 		SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
+	}
+
+	@Test
+	public void EXTENDED_PROTOCOL_CHECK() throws Exception {
+		queue.add(SiMessageFixtures.config_answer);
+		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
+		verify(siHandler).notify(CommStatus.READY);
+	}
+
+	@Test
+	public void EXTENDED_PROTOCOL_CHECK_failsOnExtendedProtocolCheck() throws Exception {
+		queue.add(SiMessageFixtures.no_ext_protocol_answer);
+		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_ERROR));
 	}
 
 }

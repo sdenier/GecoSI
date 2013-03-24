@@ -35,6 +35,11 @@ public class SiHandler implements Runnable {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void notifyError(CommStatus errorStatus, String errorMessage) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	public void run() {
 		try {

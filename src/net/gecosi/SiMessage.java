@@ -24,6 +24,10 @@ public class SiMessage {
 		return sequence;
 	}
 
+	public byte sequence(int i) {
+		return sequence[i];
+	}
+	
 	public byte[] data() {
 		int cmd_length = sequence.length - 4;
 		byte[] command = new byte[cmd_length];

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeoutException;
  *
  */
 public enum SiDriverState {
-
+	
 	STARTUP {
 		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.startup_sequence);
@@ -28,22 +28,40 @@ public enum SiDriverState {
 		}
 	},
 
+	STARTUP_TIMEOUT {
+		public boolean isError() { return true; }
+		public String status() {
+			return "Master station did not answer to startup sequence (high/low baud)";
+		}
+	},
+
 	GET_CONFIG {
 		public SiDriverState send(CommWriter writer) throws IOException {
 			writer.write_debug(SiMessage.get_protocol_configuration);
-			return CONFIG_CHECK;
+			return EXTENDED_PROTOCOL_CHECK;
 		}
 	},
 
-	CONFIG_CHECK {
+	EXTENDED_PROTOCOL_CHECK {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
-			// TODO: check extended protocol
-			return DISPATCH_READY;
+			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
+				siHandler.notify(CommStatus.READY);
+				return DISPATCH_READY;
+			} else {
+				return EXTENDED_PROTOCOL_ERROR;
+			}
 		}
 	},
 
+	EXTENDED_PROTOCOL_ERROR {
+		public boolean isError() { return true; }
+		public String status() {
+			return "Master station should be configured with extended protocol";
+		}
+	},
+	
 	DISPATCH_READY {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
@@ -99,6 +117,8 @@ public enum SiDriverState {
 		}		
 	};
 
+	private static final int EXTENDED_PROTOCOL_MASK = 1;
+
 	public SiDriverState send(CommWriter writer) throws IOException {
 		wrongCall();
 		return this;
@@ -112,6 +132,14 @@ public enum SiDriverState {
 	
 	private void wrongCall() {
 		throw new RuntimeException(String.format("This method should not be called on %s", this.name()));
+	}
+
+	public boolean isError() {
+		return false;
+	}
+	
+	public String status() {
+		return name();
 	}
 
 	public void checkAnswer(SiMessage message, byte command) throws InvalidMessage {

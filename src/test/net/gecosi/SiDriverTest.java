@@ -3,15 +3,10 @@
  */
 package test.net.gecosi;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
-import gnu.io.UnsupportedCommOperationException;
-
-import java.io.IOException;
-import java.util.TooManyListenersException;
-import java.util.concurrent.TimeoutException;
-
 import net.gecosi.CommStatus;
-import net.gecosi.InvalidMessage;
 import net.gecosi.SiDriver;
 import net.gecosi.SiHandler;
 import net.gecosi.SiMessage;
@@ -43,10 +38,8 @@ public class SiDriverTest {
 	}
 	
 	@Test
-	public void startupProtocol_succeeds()
-			throws TooManyListenersException, IOException, UnsupportedCommOperationException,
-					InterruptedException, InvalidMessage, TimeoutException {
-		siPort = new MockCommPort(new SiMessage[]{ SiMessageFixtures.startup_answer });
+	public void startupProtocol_succeeds() throws Exception {
+		siPort = new MockCommPort(new SiMessage[]{ SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer });
 		driver = new SiDriver(siPort, siHandler);
 		driver.start();
 		Thread.sleep(100);
@@ -58,9 +51,7 @@ public class SiDriverTest {
 	}
 
 	@Test
-	public void startupProtocol_failsOnTimeout()
-			throws TooManyListenersException, IOException, UnsupportedCommOperationException,
-					InterruptedException, InvalidMessage, TimeoutException {
+	public void startupProtocol_failsOnTimeout() throws Exception {
 		siPort = new MockCommPort();
 		driver = new SiDriver(siPort, siHandler);
 		driver.start();
@@ -69,6 +60,21 @@ public class SiDriverTest {
 
 		InOrder inOrder = inOrder(siHandler);
 		inOrder.verify(siHandler).notify(CommStatus.STARTING);
+		inOrder.verify(siHandler).notifyError(eq(CommStatus.ERROR), anyString());
+		inOrder.verify(siHandler).notify(CommStatus.OFF);
+	}
+
+	@Test
+	public void startupProtocol_failsOnExtendedProtocolCheck() throws Exception {
+		siPort = new MockCommPort(new SiMessage[]{ SiMessageFixtures.startup_answer, SiMessageFixtures.no_ext_protocol_answer });
+		driver = new SiDriver(siPort, siHandler);
+		driver.start();
+		Thread.sleep(100);
+		driver.interrupt();
+
+		InOrder inOrder = inOrder(siHandler);
+		inOrder.verify(siHandler).notify(CommStatus.STARTING);
+		inOrder.verify(siHandler).notifyError(eq(CommStatus.ERROR), anyString());
 		inOrder.verify(siHandler).notify(CommStatus.OFF);
 	}
 

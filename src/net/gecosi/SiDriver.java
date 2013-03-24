@@ -40,36 +40,40 @@ public class SiDriver implements Runnable {
 
 	public void run() {
 		try {
-			SiDriverState currentState = startupProtocol();
-			while (!thread.isInterrupted()) {
+			SiDriverState currentState = startupBootstrap();
+			while( isAlive(currentState) ) {
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if( currentState.isError() ) {
+				siHandler.notifyError(CommStatus.ERROR, currentState.status());
+			}
 		} catch (InterruptedException e) {
+			// TODO normal way out?
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (TimeoutException e) {
+		} finally {
 			stop();
-		} catch (InvalidMessage e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedCommOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
-	private SiDriverState startupProtocol()
-			throws UnsupportedCommOperationException, IOException, InterruptedException, InvalidMessage, TimeoutException {
+	private boolean isAlive(SiDriverState currentState) {
+		return ! (thread.isInterrupted() || currentState.isError());
+	}
+
+	private SiDriverState startupBootstrap()
+			throws UnsupportedCommOperationException, IOException, InterruptedException, InvalidMessage {
 		try {
 			siHandler.notify(CommStatus.STARTING);
 			siPort.setupHighSpeed();
 			return startup();
 		} catch (TimeoutException e) {
-			siPort.setupLowSpeed();
-			return startup();
+			try {
+				siPort.setupLowSpeed();
+				return startup();
+			} catch (TimeoutException e1) {
+				return SiDriverState.STARTUP_TIMEOUT;
+			}
 		}
 	}
 
