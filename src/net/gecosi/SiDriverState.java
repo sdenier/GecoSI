@@ -87,16 +87,18 @@ public enum SiDriverState {
 	
 	WAIT_SICARD_5_DATA {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-				throws IOException, InterruptedException, TimeoutException {
-			SiMessage message = queue.timeoutPoll();
-			// TODO error | sicard_removed --> reset
-			 if( message.check(SiMessage.GET_SI_CARD_5) ){
-				 siHandler.notify(new Si5DataFrame(message));
-				 return ACK_READ.send(writer);
-			 } else {
-				 siHandler.notify(CommStatus.PROCESSING_ERROR);
-				 return DISPATCH_READY;
-			 }
+				throws IOException, InterruptedException {
+			try {
+				SiMessage message = queue.timeoutPoll();
+				 if( message.check(SiMessage.GET_SI_CARD_5) ){
+					 siHandler.notify(new Si5DataFrame(message));
+					 return ACK_READ.send(writer);
+				 } else {
+					 return errorFallback(siHandler);
+				 }
+			} catch (TimeoutException e) {
+				 return errorFallback(siHandler);
+			}
 		}
 	},
 	
@@ -153,6 +155,11 @@ public enum SiDriverState {
 		SiMessage message = queue.timeoutPoll();
 		checkAnswer(message, command);
 		return message;
+	}
+
+	public SiDriverState errorFallback(SiHandler siHandler) {
+		siHandler.notify(CommStatus.PROCESSING_ERROR);
+		return DISPATCH_READY;
 	}
 
 }

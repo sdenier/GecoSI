@@ -5,7 +5,6 @@ package test.net.gecosi;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
@@ -106,13 +105,20 @@ public class SiDriverStateTest {
 	}
 
 	@Test
-	public void WAIT_SICARD_5_DATA_removedFallbackToDispatchReady() {
-		fail();
+	public void WAIT_SICARD_5_DATA_removedFallbackToDispatchReady() throws Exception {
+		queue.add(SiMessageFixtures.sicard5_removed);
+		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+
+		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
 	@Test
-	public void WAIT_SICARD_5_DATA_timeoutFallbackToDispatchReady() {
-		fail();
+	public void WAIT_SICARD_5_DATA_timeoutFallbackToDispatchReady() throws Exception {
+		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+
+		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
 }

@@ -3,7 +3,6 @@
  */
 package test.net.gecosi;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -34,20 +33,21 @@ public class SiDriverTest {
 	@Mock
 	private SiHandler siHandler;
 
-	private SiDriver driver;
-
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
+	}
+
+	private void testRunDriver(SiDriver driver) throws InterruptedException {
+		driver.start();
+		Thread.sleep(100);
+		driver.interrupt();
 	}
 	
 	@Test
 	public void startupProtocol_succeeds() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{ SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer });
-		driver = new SiDriver(siPort, siHandler);
-		driver.start();
-		Thread.sleep(100);
-		driver.interrupt();
+		testRunDriver(new SiDriver(siPort, siHandler));
 		
 		InOrder inOrder = inOrder(siHandler);
 		inOrder.verify(siHandler).notify(CommStatus.STARTING);
@@ -57,10 +57,7 @@ public class SiDriverTest {
 	@Test
 	public void startupProtocol_failsOnTimeout() throws Exception {
 		siPort = new MockCommPort();
-		driver = new SiDriver(siPort, siHandler);
-		driver.start();
-		Thread.sleep(100);
-		driver.interrupt();
+		testRunDriver(new SiDriver(siPort, siHandler));
 
 		InOrder inOrder = inOrder(siHandler);
 		inOrder.verify(siHandler).notify(CommStatus.STARTING);
@@ -71,10 +68,7 @@ public class SiDriverTest {
 	@Test
 	public void startupProtocol_failsOnExtendedProtocolCheck() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{ SiMessageFixtures.startup_answer, SiMessageFixtures.no_ext_protocol_answer });
-		driver = new SiDriver(siPort, siHandler);
-		driver.start();
-		Thread.sleep(100);
-		driver.interrupt();
+		testRunDriver(new SiDriver(siPort, siHandler));
 
 		InOrder inOrder = inOrder(siHandler);
 		inOrder.verify(siHandler).notify(CommStatus.STARTING);
@@ -86,17 +80,18 @@ public class SiDriverTest {
 	public void readSiCard5() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{  SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer,
 													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_data });
-		driver = new SiDriver(siPort, siHandler);
-		driver.start();
-		Thread.sleep(100);
-		driver.interrupt();
+		testRunDriver(new SiDriver(siPort, siHandler));
 
 		verify(siHandler).notify(any(Si5DataFrame.class));
 	}
 	
 	@Test
-	public void siCard5_removedBeforeRead() {
-		fail();
+	public void siCard5_removedBeforeRead() throws Exception {
+		siPort = new MockCommPort(new SiMessage[]{  SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer,
+													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_detected });
+		testRunDriver(new SiDriver(siPort, siHandler));
+
+		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);
 	}
 		
 }
