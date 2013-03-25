@@ -36,5 +36,7 @@ public class SiMessageFixtures {
 
 	public final static SiMessage sicard5_removed = new SiMessage(new byte[] {
 			0x02, (byte) 0xE7, 0x06, 0x00, 0x01, 0x00, 0x03, 0x10, (byte) 0x93, (byte) 0x97, 0x3B, 0x03});
-	
+
+	public final static SiMessage nak = new SiMessage(new byte[] { SiMessage.NAK });
+
 }

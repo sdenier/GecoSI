@@ -79,7 +79,8 @@ public class SiDriverTest {
 	@Test
 	public void readSiCard5() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{  SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer,
-													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_data });
+													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_data,
+													SiMessageFixtures.nak, SiMessageFixtures.sicard5_removed });
 		testRunDriver(new SiDriver(siPort, siHandler));
 
 		verify(siHandler).notify(any(Si5DataFrame.class));
@@ -88,7 +89,7 @@ public class SiDriverTest {
 	@Test
 	public void siCard5_removedBeforeRead() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{  SiMessageFixtures.startup_answer, SiMessageFixtures.config_answer,
-													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_detected });
+													SiMessageFixtures.sicard5_detected, SiMessageFixtures.sicard5_removed });
 		testRunDriver(new SiDriver(siPort, siHandler));
 
 		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);

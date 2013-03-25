@@ -89,11 +89,11 @@ public class SiMessage {
 	/*
 	 * Basic protocol instructions
 	 */
-	private static final byte WAKEUP = (byte) 0xFF;
-	private static final byte STX = 0x02;
-	private static final byte ETX = 0x03;
-	private static final byte ACK = 0x06;
-	private static final byte NAK = 0x15;
+	public static final byte WAKEUP = (byte) 0xFF;
+	public static final byte STX = 0x02;
+	public static final byte ETX = 0x03;
+	public static final byte ACK = 0x06;
+	public static final byte NAK = 0x15;
 
 	/*
 	 * Command instructions

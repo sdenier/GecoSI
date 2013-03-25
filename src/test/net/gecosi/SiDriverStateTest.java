@@ -121,4 +121,20 @@ public class SiDriverStateTest {
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
+	@Test
+	public void WAIT_SICARD_REMOVAL() throws Exception {
+		queue.add(SiMessageFixtures.nak);
+		queue.add(SiMessageFixtures.sicard5_removed);
+		SiDriverState nextState = SiDriverState.WAIT_SICARD_REMOVAL.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
+	}
+
+	@Test
+	public void WAIT_SICARD_REMOVAL_timeoutFallbackToDispatchReady() throws Exception {
+		SiDriverState nextState = SiDriverState.WAIT_SICARD_REMOVAL.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
+	}
+
 }
