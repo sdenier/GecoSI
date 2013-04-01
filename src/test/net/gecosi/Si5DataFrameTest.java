@@ -1,0 +1,76 @@
+/**
+ * Copyright (c) 2013 Simon Denier
+ */
+package test.net.gecosi;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import net.gecosi.Si5DataFrame;
+import net.gecosi.SiMessage;
+
+import org.junit.Test;
+
+/**
+ * @author Simon Denier
+ * @since Mar 15, 2013
+ *
+ */
+public class Si5DataFrameTest {
+	
+	@Test
+	public void getSiCardNumber() {
+		assertThat(subject304243().getSiNumber(), equalTo(304243));
+		assertThat(subject36353().getSiNumber(), equalTo(36353));
+	}
+
+	@Test
+	public void getStartTime() {
+		assertThat(subject36353().getStartTime(), equalTo(1234000L));
+	}
+
+	@Test
+	public void getFinishTime() {
+		assertThat(subject36353().getFinishTime(), equalTo(4321000L));
+	}
+
+	@Test
+	public void getCheckTime() {
+		assertThat(subject36353().getCheckTime(), equalTo(4444000L));
+	}
+
+	@Test
+	public void getNbPunches() {
+		assertThat(subject36353().getNbPunches(), equalTo(10));
+	}
+	
+	@Test
+	public void getPunchCode() {
+		assertThat(subject36353().getPunchCode(0), equalTo(36));
+		assertThat(subject36353().getPunchCode(9), equalTo(59));
+	}
+
+	@Test
+	public void getPunchTime() {
+		assertThat(subject36353().getPunchTime(0), equalTo(40059000L));
+		assertThat(subject36353().getPunchTime(9), equalTo(40104000L));
+	}
+
+	private Si5DataFrame subject304243() {
+		return new Si5DataFrame(SiMessageFixtures.sicard5_data);
+	}
+
+	private Si5DataFrame subject36353() {
+		return new Si5DataFrame(new SiMessage(new byte[] {
+			0x02, (byte) 0xB1, (byte) 0x82, 0x00, 0x01, (byte) 0xAA, 0x2E, 0x00, 0x01, (byte) 0x8E, (byte) 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x65, 0x10, (byte) 0x93, (byte) 0x04, (byte) 0xD2, (byte) 0x10, (byte) 0xE1, 0x0B, 0x56, (byte) 0x11, (byte) 0x5C, 0x28, 0x03,
+			(byte) 0xA6, 0x00, 0x07, 0x00, 0x24, (byte) 0x9C, 0x7B, 0x26, (byte) 0x9C, (byte) 0x8C, 0x22, (byte) 0x9C, (byte) 0x8D, 0x28, (byte) 0x9C,
+			(byte) 0x8F, 0x34, (byte) 0x9C, (byte) 0x9B, 0x00, 0x36, (byte) 0x9C, (byte) 0x9F, 0x33, (byte) 0x9C, (byte) 0xA1, 0x35, (byte) 0x9C,
+			(byte) 0xA2, 0x3C, (byte) 0x9C, (byte) 0xA7, 0x3B, (byte) 0x9C, (byte) 0xA8, 0x00, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE,
+			(byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, 0x00, (byte) 0xEE,
+			(byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
+			0x00, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
+			0x00,(byte) 0xEE, (byte) 0xEE, 0x00, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
+			0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE}));
+	}
+	
+}

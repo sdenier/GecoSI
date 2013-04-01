@@ -19,31 +19,32 @@ public class Si5DataFrame {
 
 	public Si5DataFrame(SiMessage message) {
 		this.dataFrame = extractDataFrame(message);
-		extractSiNumber();
+		this.siNumber = extractSiNumber();
 	}
 
-	public byte[] extractDataFrame(SiMessage message) {
+	protected byte[] extractDataFrame(SiMessage message) {
 		return Arrays.copyOfRange(message.sequence(), 5, 133);
 	}
 
-	public int byteAt(int i) {
+	protected int byteAt(int i) {
 		return dataFrame[i] & 0xFF;
 	}
 	
-	public int wordAt(int i) {
+	protected int wordAt(int i) {
 		return byteAt(i) << 8 | byteAt(i + 1);
 	}
 
-	public long timestampAt(int i) {
+	protected long timestampAt(int i) {
 		return 1000L * wordAt(i);
 	}
 
-	private void extractSiNumber() {
-		siNumber = wordAt(0x04);
+	protected int extractSiNumber() {
+		int siNumber = wordAt(0x04);
 		int cns = byteAt(0x06);
 		if( cns > 0x01 ) {
 			siNumber = siNumber + cns * 100000;
 		}
+		return siNumber;
 	}
 
 	public int getSiNumber() {
@@ -66,7 +67,7 @@ public class Si5DataFrame {
 		return byteAt(0x17) - 1;
 	}
 	
-	public int punchOffset(int i) {
+	protected int punchOffset(int i) {
 		return 0x21 + (i / 5) * 0x10 + (i % 5) * 0x03;
 	}
 	
