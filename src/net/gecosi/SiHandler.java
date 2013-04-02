@@ -15,10 +15,12 @@ public class SiHandler implements Runnable {
 	private ArrayBlockingQueue<Si5DataFrame> dataQueue;
 	private Thread thread;
 	private SiListener siListener;
+	private long zerohour;
 	
-	public SiHandler(SiListener siListener) {
+	public SiHandler(SiListener siListener, long zerohour) {
 		this.dataQueue = new ArrayBlockingQueue<Si5DataFrame>(5);
 		this.siListener = siListener;
+		this.zerohour = zerohour;
 	}
 	
 	public Thread start() {
@@ -28,6 +30,7 @@ public class SiHandler implements Runnable {
 	}
 	
 	public void notify(Si5DataFrame data) {
+		data.compute24HourTimes(zerohour);
 		dataQueue.offer(data); // TODO check true
 	}
 

@@ -20,7 +20,7 @@ public class SiComm {
 
 	public static void main(String[] args) {
 		try {
-			new SiComm().connect("/dev/tty.SLAB_USBtoUART", new SiListener() {
+			new SiComm().connect("/dev/tty.SLAB_USBtoUART", 0, new SiListener() {
 				public void handleEcard(Si5DataFrame dataFrame) {
 					dataFrame.printString();
 				}
@@ -30,13 +30,13 @@ public class SiComm {
 		}
 	}
 
-	public void connect(String portname, SiListener siListener)
+	public void connect(String portname, long zerohour, SiListener siListener)
 			throws NoSuchPortException, PortInUseException, IOException, TooManyListenersException {
 		CommPortIdentifier portId = CommPortIdentifier.getPortIdentifier(portname);
 		if( portId.isCurrentlyOwned() ) {
 			System.err.println("owner error");
 		} else {
-			SiHandler siHandler = new SiHandler(siListener);
+			SiHandler siHandler = new SiHandler(siListener, zerohour);
 			siHandler.start();
 
 			SerialPort port = (SerialPort) portId.open("GecoSI", 2000);

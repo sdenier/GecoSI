@@ -13,8 +13,11 @@ import java.util.Arrays;
 public class Si5DataFrame {
 
 	public static long NO_TIME = 1000L * 0xEEEE;
+
+	private static final int SI5_TIMED_PUNCHES = 30;
 	
 	private int siNumber;
+
 	private byte[] dataFrame;
 
 	public Si5DataFrame(SiMessage message) {
@@ -51,6 +54,11 @@ public class Si5DataFrame {
 		return siNumber;
 	}
 
+	public void compute24HourTimes(long zerohour) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public long getStartTime() {
 		return timestampAt(0x13);
 	}
@@ -71,14 +79,31 @@ public class Si5DataFrame {
 		return 0x21 + (i / 5) * 0x10 + (i % 5) * 0x03;
 	}
 	
-	public int getPunchCode(int i) {
+	protected int getPunchCode(int i) {
 		return byteAt(punchOffset(i));
 	}
 	
-	public long getPunchTime(int i) {
+	protected int getNoTimePunchCode(int i) {
+		return byteAt(0x20 + i * 0x10);
+	}	
+	
+	protected long getPunchTime(int i) {
 		return timestampAt(punchOffset(i) + 1);
 	}
 
+	public SiPunch[] getPunches(long zeroHour) {
+		SiPunch[] punches = new SiPunch[getNbPunches()];
+		int allPunches = getNbPunches();
+		int timedPunches = Math.min(allPunches, SI5_TIMED_PUNCHES);
+		for (int i = 0; i < timedPunches; i++) {
+			punches[i] = new SiPunch(getPunchCode(i), getPunchTime(i));
+		}
+		for (int i = 0; i < allPunches - SI5_TIMED_PUNCHES; i++) {
+			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
+		}
+		return punches;
+	}
+	
 	public String formatTime(long timestamp) {
 		if( timestamp == NO_TIME ) {
 			return "no time";
