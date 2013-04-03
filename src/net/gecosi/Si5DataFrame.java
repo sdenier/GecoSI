@@ -14,11 +14,21 @@ public class Si5DataFrame {
 
 	public static long NO_TIME = 1000L * 0xEEEE;
 
+	public static long TWELVE_HOURS = 1000L * 12 * 3600;
+	
 	private static final int SI5_TIMED_PUNCHES = 30;
 	
 	private int siNumber;
 
 	private byte[] dataFrame;
+
+	private long startTime;
+
+	private long finishTime;
+
+	private SiPunch[] punches;
+
+	private long checkTime;
 
 	public Si5DataFrame(SiMessage message) {
 		this.dataFrame = extractDataFrame(message);
@@ -27,6 +37,40 @@ public class Si5DataFrame {
 
 	protected byte[] extractDataFrame(SiMessage message) {
 		return Arrays.copyOfRange(message.sequence(), 5, 133);
+	}
+
+	public Si5DataFrame startingAt(long zerohour) {
+		long zeroHourShift = computeZeroHourShift(rawStartTime(), zerohour);
+		startTime = shiftTime(rawStartTime(), zeroHourShift);
+		finishTime = shiftTime(rawFinishTime(), zeroHourShift);
+		checkTime = shiftTime(rawCheckTime(), zeroHourShift);
+		punches = computeShiftedPunches(zeroHourShift);
+		return this;
+	}
+	
+	private long computeZeroHourShift(long reftime, long zerohour) {
+		long shift = 0;
+		while( reftime + shift < zerohour ){
+			shift += TWELVE_HOURS;
+		}
+		return shift;
+	}
+
+	private long shiftTime(long time, long zeroHourShift) {
+		return ( time == NO_TIME ) ? NO_TIME : time + zeroHourShift;
+	}
+
+	private SiPunch[] computeShiftedPunches(long zeroHourShift) {
+		SiPunch[] punches = new SiPunch[getNbPunches()];
+		int nbPunches = punches.length;
+		int nbTimedPunches = Math.min(nbPunches, SI5_TIMED_PUNCHES);
+		for (int i = 0; i < nbTimedPunches; i++) {
+			punches[i] = new SiPunch(getPunchCode(i), shiftTime(getPunchTime(i), zeroHourShift));
+		}
+		for (int i = 0; i < nbPunches - SI5_TIMED_PUNCHES; i++) {
+			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
+		}
+		return punches;
 	}
 
 	protected int byteAt(int i) {
@@ -50,24 +94,15 @@ public class Si5DataFrame {
 		return siNumber;
 	}
 
-	public int getSiNumber() {
-		return siNumber;
-	}
-
-	public void compute24HourTimes(long zerohour) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public long getStartTime() {
+	private long rawStartTime() {
 		return timestampAt(0x13);
 	}
 
-	public long getFinishTime() {
+	private long rawFinishTime() {
 		return timestampAt(0x15);
 	}
 
-	public long getCheckTime() {
+	private long rawCheckTime() {
 		return timestampAt(0x19);
 	}
 
@@ -91,16 +126,23 @@ public class Si5DataFrame {
 		return timestampAt(punchOffset(i) + 1);
 	}
 
-	public SiPunch[] getPunches(long zeroHour) {
-		SiPunch[] punches = new SiPunch[getNbPunches()];
-		int allPunches = getNbPunches();
-		int timedPunches = Math.min(allPunches, SI5_TIMED_PUNCHES);
-		for (int i = 0; i < timedPunches; i++) {
-			punches[i] = new SiPunch(getPunchCode(i), getPunchTime(i));
-		}
-		for (int i = 0; i < allPunches - SI5_TIMED_PUNCHES; i++) {
-			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
-		}
+	public int getSiNumber() {
+		return siNumber;
+	}
+	
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public long getFinishTime() {
+		return finishTime;
+	}
+
+	public long getCheckTime() {
+		return checkTime;
+	}
+
+	public SiPunch[] getPunches() {
 		return punches;
 	}
 	

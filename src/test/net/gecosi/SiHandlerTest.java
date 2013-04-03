@@ -34,7 +34,7 @@ public class SiHandlerTest {
 	@Test
 	public void notifySiCard5() {
 		new SiHandler(listener, 10000L).notify(sicard5);
-		verify(sicard5).compute24HourTimes(10000L);
+		verify(sicard5).startingAt(10000L);
 	}
 	
 }

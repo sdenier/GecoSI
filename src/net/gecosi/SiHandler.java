@@ -30,7 +30,7 @@ public class SiHandler implements Runnable {
 	}
 	
 	public void notify(Si5DataFrame data) {
-		data.compute24HourTimes(zerohour);
+		data.startingAt(zerohour);
 		dataQueue.offer(data); // TODO check true
 	}
 

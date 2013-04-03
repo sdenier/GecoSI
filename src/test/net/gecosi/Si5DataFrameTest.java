@@ -5,7 +5,6 @@ package test.net.gecosi;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import net.gecosi.Si5DataFrame;
 import net.gecosi.SiMessage;
 import net.gecosi.SiPunch;
@@ -47,7 +46,7 @@ public class Si5DataFrameTest {
 	
 	@Test
 	public void getPunches() {
-		SiPunch[] punches = subject36353().getPunches(0);
+		SiPunch[] punches = subject36353().getPunches();
 		assertThat(punches[0].code(), equalTo(36));
 		assertThat(punches[0].timestamp(), equalTo(40059000L));
 		assertThat(punches[9].code(), equalTo(59));
@@ -56,7 +55,7 @@ public class Si5DataFrameTest {
 
 	@Test
 	public void getPunches_with36Punches() {
-		SiPunch[] punches = subject36353().getPunches(31);
+		SiPunch[] punches = subject36353().getPunches();
 		assertThat(punches[30].code(), equalTo(31));
 		assertThat(punches[30].timestamp(), equalTo(Si5DataFrame.NO_TIME));
 		assertThat(punches[35].code(), equalTo(36));
@@ -65,7 +64,13 @@ public class Si5DataFrameTest {
 
 	@Test
 	public void getPunches_withZeroHourShift() {
-		fail();
+		Si5DataFrame subject = subject36353().startingAt(41400000L);
+		assertThat(subject.getStartTime(), equalTo(44434000L));
+		assertThat(subject.getFinishTime(), equalTo(47521000L));
+		SiPunch[] punches = subject.getPunches();
+		assertThat(punches[9].timestamp(), equalTo(83304000L));
+		assertThat(punches[10].timestamp(), equalTo(Si5DataFrame.NO_TIME));
+		assertThat(punches[35].timestamp(), equalTo(Si5DataFrame.NO_TIME));
 	}
 
 	private Si5DataFrame subject304243() {
@@ -83,7 +88,7 @@ public class Si5DataFrameTest {
 			(byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
 			0x23, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
 			0x00,(byte) 0xEE, (byte) 0xEE, 0x24, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE,
-			0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE}));
+			0x00, (byte) 0xEE, (byte) 0xEE, 0x00, (byte) 0xEE, (byte) 0xEE})).startingAt(0);
 	}
 	
 }
