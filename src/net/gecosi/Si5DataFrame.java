@@ -10,7 +10,7 @@ import java.util.Arrays;
  * @since Mar 11, 2013
  *
  */
-public class Si5DataFrame {
+public class Si5DataFrame implements SiDataFrame {
 
 	public static long NO_TIME = 1000L * 0xEEEE;
 
@@ -39,6 +39,7 @@ public class Si5DataFrame {
 		return Arrays.copyOfRange(message.sequence(), 5, 133);
 	}
 
+	@Override
 	public Si5DataFrame startingAt(long zerohour) {
 		long zeroHourShift = computeZeroHourShift(rawStartTime(), zerohour);
 		startTime = shiftTime(rawStartTime(), zeroHourShift);
@@ -106,6 +107,7 @@ public class Si5DataFrame {
 		return timestampAt(0x19);
 	}
 
+	@Override
 	public int getNbPunches() {
 		return byteAt(0x17) - 1;
 	}
@@ -126,22 +128,27 @@ public class Si5DataFrame {
 		return timestampAt(punchOffset(i) + 1);
 	}
 
+	@Override
 	public int getSiNumber() {
 		return siNumber;
 	}
 	
+	@Override
 	public long getStartTime() {
 		return startTime;
 	}
 
+	@Override
 	public long getFinishTime() {
 		return finishTime;
 	}
 
+	@Override
 	public long getCheckTime() {
 		return checkTime;
 	}
 
+	@Override
 	public SiPunch[] getPunches() {
 		return punches;
 	}
