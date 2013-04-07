@@ -68,6 +68,7 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.config_answer);
 		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
 
+		verify(siHandler).notify(CommStatus.ON);
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 

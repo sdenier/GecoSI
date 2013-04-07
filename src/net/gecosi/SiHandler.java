@@ -81,7 +81,7 @@ public class SiHandler implements Runnable {
 	}
 	
 	public boolean isAlive() {
-		return thread.isAlive();
+		return thread != null && thread.isAlive();
 	}
 	
 	public void notify(Si5DataFrame data) {
@@ -104,8 +104,7 @@ public class SiHandler implements Runnable {
 				siListener.handleEcard(dataFrame);
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			dataQueue.clear();
 		}
 	}
 

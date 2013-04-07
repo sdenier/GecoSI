@@ -48,6 +48,7 @@ public enum SiDriverState {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
 				writer.write_debug(SiMessage.beep_twice);
+				siHandler.notify(CommStatus.ON);
 				return DISPATCH_READY;
 			} else {
 				return EXTENDED_PROTOCOL_ERROR;
