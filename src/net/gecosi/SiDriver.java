@@ -29,9 +29,10 @@ public class SiDriver implements Runnable {
 		this.siHandler = siHandler;
 	}
 
-	public void start() {
+	public SiDriver start() {
 		thread = new Thread(this);
 		thread.start();
+		return this;
 	}
 
 	public void interrupt() {

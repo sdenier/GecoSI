@@ -10,6 +10,10 @@ package net.gecosi;
  */
 public interface SiListener {
 
-	public void handleEcard(Si5DataFrame dataFrame);
+	public void handleEcard(SiDataFrame dataFrame);
+
+	public void notify(CommStatus status);
+
+	public void notify(CommStatus errorStatus, String errorMessage);
 
 }

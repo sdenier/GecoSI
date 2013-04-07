@@ -33,7 +33,9 @@ public class SiHandlerTest {
 	
 	@Test
 	public void notifySiCard5() {
-		new SiHandler(listener, 10000L).notify(sicard5);
+		SiHandler siHandler = new SiHandler(listener);
+		siHandler.setZeroHour(10000L);
+		siHandler.notify(sicard5);
 		verify(sicard5).startingAt(10000L);
 	}
 	
