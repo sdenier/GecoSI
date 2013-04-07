@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.rxtxbridge;
 
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
@@ -9,6 +9,9 @@ import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import net.gecosi.internal.SiMessage;
+import net.gecosi.internal.SiMessageQueue;
 
 /**
  * @author Simon Denier

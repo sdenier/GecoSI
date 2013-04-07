@@ -1,10 +1,13 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.rxtxbridge;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.SiMessage;
 
 /**
  * @author Simon Denier

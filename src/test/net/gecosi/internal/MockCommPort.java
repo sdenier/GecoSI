@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package test.net.gecosi;
+package test.net.gecosi.internal;
 
 import gnu.io.UnsupportedCommOperationException;
 
@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.TooManyListenersException;
 
-import net.gecosi.CommWriter;
-import net.gecosi.SiMessage;
-import net.gecosi.SiMessageQueue;
-import net.gecosi.SiPort;
+import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.SiMessage;
+import net.gecosi.internal.SiMessageQueue;
+import net.gecosi.internal.SiPort;
 
 /**
  * @author Simon Denier

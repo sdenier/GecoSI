@@ -1,13 +1,17 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.rxtxbridge;
 
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
+
+import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.SiMessageQueue;
+import net.gecosi.internal.SiPort;
 
 /**
  * @author Simon Denier

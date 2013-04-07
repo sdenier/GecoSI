@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package test.net.gecosi;
+package test.net.gecosi.internal;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -9,17 +9,19 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import net.gecosi.CommStatus;
-import net.gecosi.Si5DataFrame;
-import net.gecosi.SiDriver;
 import net.gecosi.SiHandler;
-import net.gecosi.SiMessage;
-import net.gecosi.SiPort;
+import net.gecosi.dataframe.Si5DataFrame;
+import net.gecosi.internal.SiDriver;
+import net.gecosi.internal.SiMessage;
+import net.gecosi.internal.SiPort;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import test.net.gecosi.SiMessageFixtures;
 
 /**
  * @author Simon Denier

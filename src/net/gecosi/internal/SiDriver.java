@@ -1,13 +1,16 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.internal;
 
 import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.util.TooManyListenersException;
 import java.util.concurrent.TimeoutException;
+
+import net.gecosi.CommStatus;
+import net.gecosi.SiHandler;
 
 /**
  * @author Simon Denier

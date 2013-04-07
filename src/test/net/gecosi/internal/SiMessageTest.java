@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package test.net.gecosi;
+package test.net.gecosi.internal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import net.gecosi.SiMessage;
+import net.gecosi.internal.SiMessage;
 
 import org.junit.Test;
 

@@ -1,10 +1,14 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.internal;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+
+import net.gecosi.CommStatus;
+import net.gecosi.SiHandler;
+import net.gecosi.dataframe.Si5DataFrame;
 
 /**
  * @author Simon Denier

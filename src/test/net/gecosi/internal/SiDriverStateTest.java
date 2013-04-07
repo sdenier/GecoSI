@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package test.net.gecosi;
+package test.net.gecosi.internal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -10,17 +10,19 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommStatus;
-import net.gecosi.CommWriter;
-import net.gecosi.InvalidMessage;
-import net.gecosi.SiDriverState;
 import net.gecosi.SiHandler;
-import net.gecosi.SiMessage;
-import net.gecosi.SiMessageQueue;
+import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.InvalidMessage;
+import net.gecosi.internal.SiDriverState;
+import net.gecosi.internal.SiMessage;
+import net.gecosi.internal.SiMessageQueue;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import test.net.gecosi.SiMessageFixtures;
 
 /**
  * @author Simon Denier

@@ -3,7 +3,7 @@
  */
 package test.net.gecosi;
 
-import net.gecosi.SiMessage;
+import net.gecosi.internal.SiMessage;
 
 /**
  * @author Simon Denier

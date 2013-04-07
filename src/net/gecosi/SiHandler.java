@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.util.TooManyListenersException;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import net.gecosi.dataframe.SiDataFrame;
+import net.gecosi.internal.SiDriver;
+import net.gecosi.rxtxbridge.RxtxPort;
+
 /**
  * @author Simon Denier
  * @since Mar 12, 2013
@@ -19,7 +23,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class SiHandler implements Runnable {
 
-	private ArrayBlockingQueue<Si5DataFrame> dataQueue;
+	private ArrayBlockingQueue<SiDataFrame> dataQueue;
 	private Thread thread;
 	private SiDriver driver;
 	private SiListener siListener;
@@ -61,7 +65,7 @@ public class SiHandler implements Runnable {
 	}
 
 	public SiHandler(SiListener siListener) {
-		this.dataQueue = new ArrayBlockingQueue<Si5DataFrame>(5);
+		this.dataQueue = new ArrayBlockingQueue<SiDataFrame>(5);
 		this.siListener = siListener;
 	}
 	
@@ -84,7 +88,7 @@ public class SiHandler implements Runnable {
 		return thread != null && thread.isAlive();
 	}
 	
-	public void notify(Si5DataFrame data) {
+	public void notify(SiDataFrame data) {
 		data.startingAt(zerohour);
 		dataQueue.offer(data); // TODO check true
 	}
@@ -99,7 +103,7 @@ public class SiHandler implements Runnable {
 	
 	public void run() {
 		try {
-			Si5DataFrame dataFrame;
+			SiDataFrame dataFrame;
 			while( (dataFrame = dataQueue.take()) != null ) {
 				siListener.handleEcard(dataFrame);
 			}

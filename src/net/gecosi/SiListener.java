@@ -3,6 +3,8 @@
  */
 package net.gecosi;
 
+import net.gecosi.dataframe.SiDataFrame;
+
 /**
  * @author Simon Denier
  * @since Mar 12, 2013

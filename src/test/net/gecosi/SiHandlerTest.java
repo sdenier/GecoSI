@@ -4,9 +4,9 @@
 package test.net.gecosi;
 
 import static org.mockito.Mockito.verify;
-import net.gecosi.Si5DataFrame;
 import net.gecosi.SiHandler;
 import net.gecosi.SiListener;
+import net.gecosi.dataframe.Si5DataFrame;
 
 import org.junit.Before;
 import org.junit.Test;
