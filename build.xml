@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="buildnumber" name="GecoSI">
+	<property file="dev.prop"/>
+	
+	<target name="buildnumber">
+		<exec executable="${git.cmd}" outputproperty="build.number">
+			<arg line="describe --all" />
+		</exec>
+		<echo message="BUILD ${build.number}" />
+	</target>
+
+    <target name="build_jar" depends="buildnumber">
+        <jar destfile="${basedir}/GecoSI.jar">
+            <manifest>
+                <attribute name="Class-Path" value="."/>
+            	<attribute name="Built-By" value="${dev.username}"/>
+            	<attribute name="Built-Date" value="${TODAY}"/> 
+               	<attribute name="Implementation-Version" value="${build.number}"/>
+            </manifest>
+            <fileset dir="${basedir}/bin" excludes="test/"/>
+        	<fileset dir="${basedir}/lib" excludes="dev/"/>
+        </jar>
+    </target>
+
+</project>
