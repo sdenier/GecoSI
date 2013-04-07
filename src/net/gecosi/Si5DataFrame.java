@@ -10,29 +10,29 @@ import java.util.Arrays;
  * @since Mar 11, 2013
  *
  */
-public class Si5DataFrame implements SiDataFrame {
-
-	public static long NO_TIME = 1000L * 0xEEEE;
+public class Si5DataFrame extends SiAbstractDataFrame {
 
 	public static long TWELVE_HOURS = 1000L * 12 * 3600;
 	
 	private static final int SI5_TIMED_PUNCHES = 30;
 	
-	private int siNumber;
-
 	private byte[] dataFrame;
-
-	private long startTime;
-
-	private long finishTime;
-
-	private SiPunch[] punches;
-
-	private long checkTime;
 
 	public Si5DataFrame(SiMessage message) {
 		this.dataFrame = extractDataFrame(message);
 		this.siNumber = extractSiNumber();
+	}
+	
+	protected int byteAt(int i) {
+		return dataFrame[i] & 0xFF;
+	}
+
+	protected int wordAt(int i) {
+		return byteAt(i) << 8 | byteAt(i + 1);
+	}
+
+	protected long timestampAt(int i) {
+		return 1000L * wordAt(i);
 	}
 
 	protected byte[] extractDataFrame(SiMessage message) {
@@ -40,7 +40,7 @@ public class Si5DataFrame implements SiDataFrame {
 	}
 
 	@Override
-	public Si5DataFrame startingAt(long zerohour) {
+	public SiDataFrame startingAt(long zerohour) {
 		long zeroHourShift = computeZeroHourShift(rawStartTime(), zerohour);
 		startTime = shiftTime(rawStartTime(), zeroHourShift);
 		finishTime = shiftTime(rawFinishTime(), zeroHourShift);
@@ -62,8 +62,8 @@ public class Si5DataFrame implements SiDataFrame {
 	}
 
 	private SiPunch[] computeShiftedPunches(long zeroHourShift) {
-		SiPunch[] punches = new SiPunch[getNbPunches()];
-		int nbPunches = punches.length;
+		int nbPunches = rawNbPunches();
+		SiPunch[] punches = new SiPunch[nbPunches];
 		int nbTimedPunches = Math.min(nbPunches, SI5_TIMED_PUNCHES);
 		for (int i = 0; i < nbTimedPunches; i++) {
 			punches[i] = new SiPunch(getPunchCode(i), shiftTime(getPunchTime(i), zeroHourShift));
@@ -74,25 +74,17 @@ public class Si5DataFrame implements SiDataFrame {
 		return punches;
 	}
 
-	protected int byteAt(int i) {
-		return dataFrame[i] & 0xFF;
-	}
-	
-	protected int wordAt(int i) {
-		return byteAt(i) << 8 | byteAt(i + 1);
-	}
-
-	protected long timestampAt(int i) {
-		return 1000L * wordAt(i);
-	}
-
-	protected int extractSiNumber() {
+	protected String extractSiNumber() {
 		int siNumber = wordAt(0x04);
 		int cns = byteAt(0x06);
 		if( cns > 0x01 ) {
 			siNumber = siNumber + cns * 100000;
 		}
-		return siNumber;
+		return Integer.toString(siNumber);
+	}
+	
+	protected int rawNbPunches() {
+		return byteAt(0x17) - 1;
 	}
 
 	private long rawStartTime() {
@@ -107,11 +99,6 @@ public class Si5DataFrame implements SiDataFrame {
 		return timestampAt(0x19);
 	}
 
-	@Override
-	public int getNbPunches() {
-		return byteAt(0x17) - 1;
-	}
-	
 	protected int punchOffset(int i) {
 		return 0x21 + (i / 5) * 0x10 + (i % 5) * 0x03;
 	}
@@ -126,53 +113,6 @@ public class Si5DataFrame implements SiDataFrame {
 	
 	protected long getPunchTime(int i) {
 		return timestampAt(punchOffset(i) + 1);
-	}
-
-	@Override
-	public int getSiNumber() {
-		return siNumber;
-	}
-	
-	@Override
-	public long getStartTime() {
-		return startTime;
-	}
-
-	@Override
-	public long getFinishTime() {
-		return finishTime;
-	}
-
-	@Override
-	public long getCheckTime() {
-		return checkTime;
-	}
-
-	@Override
-	public SiPunch[] getPunches() {
-		return punches;
-	}
-	
-	public String formatTime(long timestamp) {
-		if( timestamp == NO_TIME ) {
-			return "no time";
-		} else {
-			long seconds = timestamp / 1000;
-			return String.format("%d:%02d:%02d", seconds/3600, (seconds%3600)/60, (seconds%60));
-		}
-	}
-	
-	public void printString() {
-		System.out.println("It's aliiive!");
-		System.out.format("SiCard5: %s ", getSiNumber());
-		System.out.format("(Start: %s ", formatTime(getStartTime()));
-		System.out.format(" - Finish: %s", formatTime(getFinishTime()));
-		System.out.format(" - Check: %s)%n", formatTime(getCheckTime()));
-		System.out.format("Punches: %s %n", getNbPunches());
-		for (int i = 0; i < getNbPunches(); i++) {
-			System.out.format("%s: %s %s - ", i, getPunchCode(i), formatTime(getPunchTime(i)));
-		}
-		System.out.println();
 	}
 
 }

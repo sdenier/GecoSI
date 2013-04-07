@@ -10,11 +10,13 @@ package net.gecosi;
  */
 public interface SiDataFrame {
 
-	public Si5DataFrame startingAt(long zerohour);
+	public static long NO_TIME = 1000L * 0xEEEE;
+
+	public SiDataFrame startingAt(long zerohour);
 
 	public int getNbPunches();
 
-	public int getSiNumber();
+	public String getSiNumber();
 
 	public long getStartTime();
 
@@ -23,5 +25,7 @@ public interface SiDataFrame {
 	public long getCheckTime();
 
 	public SiPunch[] getPunches();
+
+	public void printString();
 
 }

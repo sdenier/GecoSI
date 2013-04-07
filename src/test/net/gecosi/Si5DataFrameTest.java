@@ -6,6 +6,7 @@ package test.net.gecosi;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import net.gecosi.Si5DataFrame;
+import net.gecosi.SiDataFrame;
 import net.gecosi.SiMessage;
 import net.gecosi.SiPunch;
 
@@ -20,8 +21,8 @@ public class Si5DataFrameTest {
 	
 	@Test
 	public void getSiCardNumber() {
-		assertThat(subject304243().getSiNumber(), equalTo(304243));
-		assertThat(subject36353().getSiNumber(), equalTo(36353));
+		assertThat(subject304243().getSiNumber(), equalTo("304243"));
+		assertThat(subject36353().getSiNumber(), equalTo("36353"));
 	}
 
 	@Test
@@ -64,7 +65,7 @@ public class Si5DataFrameTest {
 
 	@Test
 	public void getPunches_withZeroHourShift() {
-		Si5DataFrame subject = subject36353().startingAt(41400000L);
+		SiDataFrame subject = subject36353().startingAt(41400000L);
 		assertThat(subject.getStartTime(), equalTo(44434000L));
 		assertThat(subject.getFinishTime(), equalTo(47521000L));
 		SiPunch[] punches = subject.getPunches();
@@ -77,7 +78,7 @@ public class Si5DataFrameTest {
 		return new Si5DataFrame(SiMessageFixtures.sicard5_data);
 	}
 
-	private Si5DataFrame subject36353() {
+	private SiDataFrame subject36353() {
 		return new Si5DataFrame(new SiMessage(new byte[] {
 			0x02, (byte) 0xB1, (byte) 0x82, 0x00, 0x01, (byte) 0xAA, 0x2E, 0x00, 0x01, (byte) 0x8E, (byte) 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x65, 0x10, (byte) 0x93, (byte) 0x04, (byte) 0xD2, (byte) 0x10, (byte) 0xE1, 0x25, 0x56, (byte) 0x11, (byte) 0x5C, 0x28, 0x03,
