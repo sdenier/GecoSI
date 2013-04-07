@@ -47,6 +47,7 @@ public enum SiDriverState {
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
+				writer.write_debug(SiMessage.beep_twice);
 				return DISPATCH_READY;
 			} else {
 				return EXTENDED_PROTOCOL_ERROR;
@@ -113,7 +114,6 @@ public enum SiDriverState {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
 			try {
-				queue.timeoutPoll(); // poll NAK after ACK
 				SiMessage message = queue.timeoutPoll();
 				if( message.check(SiMessage.SI_CARD_REMOVED) ){
 					 return DISPATCH_READY;

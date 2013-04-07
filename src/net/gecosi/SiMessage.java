@@ -101,6 +101,7 @@ public class SiMessage {
 	public static final byte GET_SYSTEM_VALUE = (byte) 0x83;
 	public static final byte SET_MASTER_MODE = (byte) 0xF0;
 	public static final byte DIRECT_MODE = 0x4d;
+	public static final byte BEEP = (byte) 0xF9;
 
 	/*
 	 * Card detected/removed
@@ -128,11 +129,15 @@ public class SiMessage {
 	});
 		
 	public static final SiMessage ack_sequence = new SiMessage(new byte[] {
-		STX, ACK, 0x00, ACK, 0x00, ETX
+		ACK
 	});
 
 	public static final SiMessage read_sicard_5 = new SiMessage(new byte[] {
 		STX, GET_SI_CARD_5, 0x00, GET_SI_CARD_5, 0x00, ETX	
+	});
+	
+	public static final SiMessage beep_twice = new SiMessage(new byte[] {
+		STX, BEEP, 0x01, 0x02, 0x14, 0x0A, ETX
 	});
 	
 }
