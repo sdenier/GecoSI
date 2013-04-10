@@ -5,3 +5,4 @@
 *.war
 *.ear
 /archives
+/raw_output

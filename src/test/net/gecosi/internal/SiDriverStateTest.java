@@ -5,12 +5,15 @@ package test.net.gecosi.internal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
+import net.gecosi.dataframe.Si5DataFrame;
+import net.gecosi.dataframe.Si8DataFrame;
 import net.gecosi.internal.CommWriter;
 import net.gecosi.internal.InvalidMessage;
 import net.gecosi.internal.SiDriverState;
@@ -104,6 +107,7 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
 
 		verify(writer).write_debug(SiMessage.ack_sequence);
+		verify(siHandler).notify(any(Si5DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
 
@@ -124,6 +128,26 @@ public class SiDriverStateTest {
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
+	@Test
+	public void DISPATCH_READY_dispatchesSiCard8() throws Exception {
+		queue.add(SiMessageFixtures.sicard8_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b0);
+	}
+
+	@Test
+	public void RETRIEVE_SICARD_8_DATA() throws Exception {
+		queue.add(SiMessageFixtures.sicard9_b0_data);
+		queue.add(SiMessageFixtures.sicard9_b1_data);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_8_DATA.receive(queue, writer, siHandler);
+
+		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b0);
+		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b1);
+		verify(writer).write_debug(SiMessage.ack_sequence);
+		verify(siHandler).notify(any(Si8DataFrame.class));
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
+	}
+	
 	@Test
 	public void WAIT_SICARD_REMOVAL() throws Exception {
 		queue.add(SiMessageFixtures.sicard5_removed);

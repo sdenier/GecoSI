@@ -18,24 +18,10 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 	public static long TWELVE_HOURS = 1000L * 12 * 3600;
 	
 	private static final int SI5_TIMED_PUNCHES = 30;
-	
-	private byte[] dataFrame;
 
 	public Si5DataFrame(SiMessage message) {
 		this.dataFrame = extractDataFrame(message);
 		this.siNumber = extractSiNumber();
-	}
-	
-	protected int byteAt(int i) {
-		return dataFrame[i] & 0xFF;
-	}
-
-	protected int wordAt(int i) {
-		return byteAt(i) << 8 | byteAt(i + 1);
-	}
-
-	protected long timestampAt(int i) {
-		return 1000L * wordAt(i);
 	}
 
 	protected byte[] extractDataFrame(SiMessage message) {

@@ -10,7 +10,7 @@ import net.gecosi.SiPunch;
  * @since Apr 7, 2013
  *
  */
-public class MockDataFrame extends SiAbstractDataFrame {
+public class MockDataFrame extends AbstractDataFrame {
 
 	public MockDataFrame(String siNumber, long checkTime, long startTime, long finishTime, SiPunch[] punches) {
 		this.siNumber = siNumber;

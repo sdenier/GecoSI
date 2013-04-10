@@ -135,7 +135,15 @@ public class SiMessage {
 	public static final SiMessage read_sicard_5 = new SiMessage(new byte[] {
 		STX, GET_SI_CARD_5, 0x00, GET_SI_CARD_5, 0x00, ETX	
 	});
-	
+
+	public static final SiMessage read_sicard_8_plus_b0 = new SiMessage(new byte[] {
+		STX, GET_SI_CARD_8_PLUS_BN, 0x01, 0x00, (byte) 0xE2, 0x09, ETX	
+	});
+
+	public static final SiMessage read_sicard_8_plus_b1 = new SiMessage(new byte[] {
+		STX, GET_SI_CARD_8_PLUS_BN, 0x01, 0x01, (byte) 0xE3, 0x09, ETX	
+	});
+
 	public static final SiMessage beep_twice = new SiMessage(new byte[] {
 		STX, BEEP, 0x01, 0x02, 0x14, 0x0A, ETX
 	});

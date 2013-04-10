@@ -69,13 +69,15 @@ public enum SiDriverState {
 	
 	DISPATCH_READY {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-				throws IOException, InterruptedException {
+				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			siHandler.notify(CommStatus.READY);
 			SiMessage message = queue.take();
 			siHandler.notify(CommStatus.PROCESSING);
 			switch (message.commandByte()) {
 			case SiMessage.SI_CARD_5_DETECTED:
 				return READ_SICARD_5.send(writer);
+			case SiMessage.SI_CARD_8_PLUS_DETECTED:
+				return RETRIEVE_SICARD_8_DATA.receive(queue, writer, siHandler);
 			case SiMessage.SI_CARD_REMOVED:
 			default:
 				// TODO log?
@@ -106,6 +108,35 @@ public enum SiDriverState {
 				 return errorFallback(siHandler);
 			}
 		}
+	},
+	
+	RETRIEVE_SICARD_8_DATA {
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			try {
+				SiMessage[] retrieval_messages = new SiMessage[] {
+						SiMessage.read_sicard_8_plus_b0, SiMessage.read_sicard_8_plus_b1
+				};
+				SiMessage[] data_messages = new SiMessage[retrieval_messages.length];
+				for (int i = 0; i < retrieval_messages.length; i++) {
+					SiMessage send_message = retrieval_messages[i];
+					writer.write_debug(send_message);
+					SiMessage received_message = queue.timeoutPoll();
+					if( received_message.check(send_message.commandByte()) ){
+						System.out.println("Sicard 8: " + i);
+						data_messages[i] = received_message;
+					} else {
+						System.out.println("Unexpected message!");
+						return errorFallback(siHandler);
+					}		
+				}
+				System.out.println("Sicard 8+ done");
+//				siHandler.notify(new Si8DataFrame(data_messages));
+				return ACK_READ.send(writer);
+			} catch (TimeoutException e) {
+				 return errorFallback(siHandler);
+			}
+		}		
 	},
 	
 	ACK_READ {
