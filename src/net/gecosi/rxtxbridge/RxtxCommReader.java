@@ -25,6 +25,8 @@ public class RxtxCommReader implements SerialPortEventListener {
 	private InputStream input;
 	private SiMessageQueue messageQueue;
 
+	private byte[] messageFragment;
+
 	public RxtxCommReader(InputStream input, SiMessageQueue messageQueue) {
 		this.input = input;
 		this.messageQueue = messageQueue;
@@ -34,10 +36,20 @@ public class RxtxCommReader implements SerialPortEventListener {
 		try {
 			byte[] answer = new byte[MAX_MESSAGE_SIZE];
 			int nbBytes = this.input.read(answer);
-			SiMessage message = extractMessage(answer, nbBytes);
-			messageQueue.put(message);
-			System.out.format("RECEIVE: %s CRC %s %n", message.toString(), message.toStringCRC());
-			System.out.flush();
+			if( awaitingSecondFragment() ) {
+				System.err.println("Message fragment 2");
+				byte[] messsageFrame = Arrays.copyOf(messageFragment, messageFragment.length + nbBytes);
+				System.arraycopy(answer, 0, messsageFrame, messageFragment.length, nbBytes);
+				queueMessage(new SiMessage(messsageFrame));
+				messageFragment = null;
+			} else {
+				if( messageInOnePiece(answer, nbBytes) ) {
+					queueMessage(extractMessage(answer, nbBytes));
+				} else {
+					System.err.println("Message fragment 1");
+					messageFragment = Arrays.copyOfRange(answer, 0, nbBytes);
+				}
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -47,7 +59,20 @@ public class RxtxCommReader implements SerialPortEventListener {
 		}
 	}
 	
-	public SiMessage extractMessage(byte[] answer, int nbBytes) {
+	private boolean messageInOnePiece(byte[] answer, int nbBytes) {
+		return (answer[2] & 0xFF) == nbBytes - 6;
+	}
+
+	private boolean awaitingSecondFragment() {
+		return messageFragment != null;
+	}
+
+	private void queueMessage(SiMessage message) throws InterruptedException {
+		messageQueue.put(message);
+		System.out.format("RECEIVE: %s CRC %s %n", message.toString(), message.toStringCRC());
+	}
+
+	private SiMessage extractMessage(byte[] answer, int nbBytes) {
 		return new SiMessage( Arrays.copyOfRange(answer, 0, nbBytes) );
 	}
 
