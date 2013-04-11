@@ -13,17 +13,24 @@ import net.gecosi.internal.SiMessage;
  * @since Apr 10, 2013
  *
  */
-public class Si8DataFrame extends SiAbstractDataFrame {
+public class Si8_9DataFrame extends SiAbstractDataFrame {
 
-	private static final int PUNCHES_START = 34;
+	private static final int SINUMBER_PAGE = 6 * PAGE_SIZE;
 
-	public Si8DataFrame(SiMessage[] data_messages) {
-		this.dataFrame  = extractDataFrame(data_messages);
-		this.siNumber   = extractSiNumber();
-		this.startTime  = extractStartTime();
-		this.finishTime = extractFinishTime();
-		this.checkTime  = extractCheckTime();
-		this.punches    = extractPunches();
+	private static final int SICARD8_PUNCHES_START = 34;
+	
+	private static final int SICARD9_PUNCHES_START = 14;
+
+	private int punchesStart;
+
+	public Si8_9DataFrame(SiMessage[] data_messages) {
+		this.dataFrame    = extractDataFrame(data_messages);
+		this.siNumber     = extractSiNumber();
+		this.startTime    = extractStartTime();
+		this.finishTime   = extractFinishTime();
+		this.checkTime    = extractCheckTime();
+		this.punchesStart = getPunchesStartIndex();
+		this.punches      = extractPunches();
 	}
 
 	private byte[] extractDataFrame(SiMessage[] dataMessages) {
@@ -33,7 +40,7 @@ public class Si8DataFrame extends SiAbstractDataFrame {
 	}
 
 	protected String extractSiNumber() {
-		return Integer.toString(block3At(6 * PAGE_SIZE + 1));
+		return Integer.toString(block3At(SINUMBER_PAGE + 1));
 	}
 
 	protected long extractStartTime() {
@@ -47,6 +54,10 @@ public class Si8DataFrame extends SiAbstractDataFrame {
 	protected long extractCheckTime() {
 		return extract24HourTime(2 * PAGE_SIZE);
 	}
+
+	private int getPunchesStartIndex() {
+		return (byteAt(SINUMBER_PAGE) & 3) == 2 ? SICARD8_PUNCHES_START : SICARD9_PUNCHES_START;
+	}
 	
 	protected int rawNbPunches() {
 		return byteAt(5 * PAGE_SIZE + 2);
@@ -55,7 +66,7 @@ public class Si8DataFrame extends SiAbstractDataFrame {
 	protected SiPunch[] extractPunches() {
 		SiPunch[] punches = new SiPunch[rawNbPunches()];
 		for (int i = 0; i < punches.length; i++) {
-			int punchIndex = (PUNCHES_START + i) * PAGE_SIZE;
+			int punchIndex = (punchesStart + i) * PAGE_SIZE;
 			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
 		}
 		return punches;
@@ -63,8 +74,7 @@ public class Si8DataFrame extends SiAbstractDataFrame {
 
 	protected int extractCode(int punchIndex) {
 		int codeHigh = (byteAt(punchIndex) & 192) << 2;
-		System.out.println(codeHigh);
-		int code = codeHigh + byteAt(punchIndex + 1);
+		int code = codeHigh + byteAt(punchIndex + 1); // TODO check/test
 		return code;
 	}
 	

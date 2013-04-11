@@ -9,7 +9,7 @@ import java.util.concurrent.TimeoutException;
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
 import net.gecosi.dataframe.Si5DataFrame;
-import net.gecosi.dataframe.Si8DataFrame;
+import net.gecosi.dataframe.Si8_9DataFrame;
 
 /**
  * @author Simon Denier
@@ -78,7 +78,7 @@ public enum SiDriverState {
 			case SiMessage.SI_CARD_5_DETECTED:
 				return READ_SICARD_5.send(writer);
 			case SiMessage.SI_CARD_8_PLUS_DETECTED:
-				return RETRIEVE_SICARD_8_DATA.receive(queue, writer, siHandler);
+				return RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
 			case SiMessage.SI_CARD_REMOVED:
 			default:
 				// TODO log?
@@ -111,7 +111,7 @@ public enum SiDriverState {
 		}
 	},
 	
-	RETRIEVE_SICARD_8_DATA {
+	RETRIEVE_SICARD_8_9_DATA {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
 			try {
@@ -124,15 +124,13 @@ public enum SiDriverState {
 					writer.write_debug(send_message);
 					SiMessage received_message = queue.timeoutPoll();
 					if( received_message.check(send_message.commandByte()) ){
-						System.out.println("Sicard 8: " + i);
 						data_messages[i] = received_message;
 					} else {
 						System.out.println("Unexpected message!");
 						return errorFallback(siHandler);
 					}		
 				}
-				System.out.println("Sicard 8+ done");
-				siHandler.notify(new Si8DataFrame(data_messages));
+				siHandler.notify(new Si8_9DataFrame(data_messages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
 				 return errorFallback(siHandler);
