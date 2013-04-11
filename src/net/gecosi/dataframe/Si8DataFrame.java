@@ -5,6 +5,7 @@ package net.gecosi.dataframe;
 
 import java.util.Arrays;
 
+import net.gecosi.SiPunch;
 import net.gecosi.internal.SiMessage;
 
 /**
@@ -14,9 +15,15 @@ import net.gecosi.internal.SiMessage;
  */
 public class Si8DataFrame extends SiAbstractDataFrame {
 
+	private static final int PUNCHES_START = 34;
+
 	public Si8DataFrame(SiMessage[] data_messages) {
-		this.dataFrame = extractDataFrame(data_messages);
-		this.siNumber = extractSiNumber();
+		this.dataFrame  = extractDataFrame(data_messages);
+		this.siNumber   = extractSiNumber();
+		this.startTime  = extractStartTime();
+		this.finishTime = extractFinishTime();
+		this.checkTime  = extractCheckTime();
+		this.punches    = extractPunches();
 	}
 
 	private byte[] extractDataFrame(SiMessage[] dataMessages) {
@@ -26,7 +33,44 @@ public class Si8DataFrame extends SiAbstractDataFrame {
 	}
 
 	protected String extractSiNumber() {
-		return Integer.toString((byteAt(25) << 16) + wordAt(26));
+		return Integer.toString(block3At(6 * PAGE_SIZE + 1));
+	}
+
+	protected long extractStartTime() {
+		return extract24HourTime(3 * PAGE_SIZE);
+	}
+
+	protected long extractFinishTime() {
+		return extract24HourTime(4 * PAGE_SIZE);
+	}
+
+	protected long extractCheckTime() {
+		return extract24HourTime(2 * PAGE_SIZE);
+	}
+	
+	protected int rawNbPunches() {
+		return byteAt(5 * PAGE_SIZE + 2);
+	}
+
+	protected SiPunch[] extractPunches() {
+		SiPunch[] punches = new SiPunch[rawNbPunches()];
+		for (int i = 0; i < punches.length; i++) {
+			int punchIndex = (PUNCHES_START + i) * PAGE_SIZE;
+			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
+		}
+		return punches;
+	}
+
+	protected int extractCode(int punchIndex) {
+		int codeHigh = (byteAt(punchIndex) & 192) << 2;
+		System.out.println(codeHigh);
+		int code = codeHigh + byteAt(punchIndex + 1);
+		return code;
+	}
+	
+	protected long extract24HourTime(int pageStart) {
+		int pmFlag = byteAt(pageStart) & 1;
+		return shiftTime(timestampAt(pageStart + 2), TWELVE_HOURS * pmFlag);
 	}
 
 	@Override

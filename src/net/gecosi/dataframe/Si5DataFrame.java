@@ -14,8 +14,6 @@ import net.gecosi.internal.SiMessage;
  *
  */
 public class Si5DataFrame extends SiAbstractDataFrame {
-
-	public static long TWELVE_HOURS = 1000L * 12 * 3600;
 	
 	private static final int SI5_TIMED_PUNCHES = 30;
 
@@ -44,10 +42,6 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 			shift += TWELVE_HOURS;
 		}
 		return shift;
-	}
-
-	private long shiftTime(long time, long zeroHourShift) {
-		return ( time == NO_TIME ) ? NO_TIME : time + zeroHourShift;
 	}
 
 	private SiPunch[] computeShiftedPunches(long zeroHourShift) {

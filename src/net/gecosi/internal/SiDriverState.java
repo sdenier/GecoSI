@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
 import net.gecosi.dataframe.Si5DataFrame;
+import net.gecosi.dataframe.Si8DataFrame;
 
 /**
  * @author Simon Denier
@@ -131,7 +132,7 @@ public enum SiDriverState {
 					}		
 				}
 				System.out.println("Sicard 8+ done");
-//				siHandler.notify(new Si8DataFrame(data_messages));
+				siHandler.notify(new Si8DataFrame(data_messages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
 				 return errorFallback(siHandler);
