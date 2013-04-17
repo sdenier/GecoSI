@@ -62,8 +62,7 @@ public abstract class AbstractDataFrame implements SiDataFrame {
 	}
 
 	public void printString() {
-		System.out.println("It's aliiive!");
-		System.out.format("SiCard5: %s ", getSiNumber());
+		System.out.format("%s: %s ", sicardSeries(), getSiNumber());
 		System.out.format("(Start: %s ", formatTime(getStartTime()));
 		System.out.format(" - Finish: %s", formatTime(getFinishTime()));
 		System.out.format(" - Check: %s)%n", formatTime(getCheckTime()));
@@ -74,4 +73,6 @@ public abstract class AbstractDataFrame implements SiDataFrame {
 		System.out.println();
 	}
 
+	public abstract String sicardSeries();
+	
 }

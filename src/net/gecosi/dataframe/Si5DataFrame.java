@@ -98,4 +98,9 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 		return timestampAt(punchOffset(i) + 1);
 	}
 
+	@Override
+	public String sicardSeries() {
+		return "SiCard 5";
+	}
+
 }

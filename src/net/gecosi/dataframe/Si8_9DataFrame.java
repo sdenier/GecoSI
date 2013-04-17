@@ -21,15 +21,12 @@ public class Si8_9DataFrame extends SiAbstractDataFrame {
 	
 	private static final int SICARD9_PUNCHES_START = 14;
 
-	private int punchesStart;
-
 	public Si8_9DataFrame(SiMessage[] data_messages) {
 		this.dataFrame    = extractDataFrame(data_messages);
 		this.siNumber     = extractSiNumber();
 		this.startTime    = extractStartTime();
 		this.finishTime   = extractFinishTime();
 		this.checkTime    = extractCheckTime();
-		this.punchesStart = getPunchesStartIndex();
 		this.punches      = extractPunches();
 	}
 
@@ -65,6 +62,7 @@ public class Si8_9DataFrame extends SiAbstractDataFrame {
 
 	protected SiPunch[] extractPunches() {
 		SiPunch[] punches = new SiPunch[rawNbPunches()];
+		int punchesStart = getPunchesStartIndex();
 		for (int i = 0; i < punches.length; i++) {
 			int punchIndex = (punchesStart + i) * PAGE_SIZE;
 			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
@@ -86,6 +84,11 @@ public class Si8_9DataFrame extends SiAbstractDataFrame {
 	@Override
 	public SiDataFrame startingAt(long zerohour) {
 		return this;
+	}
+
+	@Override
+	public String sicardSeries() {
+		return "SiCard 8-9";
 	}
 
 }

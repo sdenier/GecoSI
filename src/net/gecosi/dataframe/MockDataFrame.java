@@ -25,4 +25,9 @@ public class MockDataFrame extends AbstractDataFrame {
 		return this;
 	}
 
+	@Override
+	public String sicardSeries() {
+		return "Mock Sicard";
+	}
+	
 }
