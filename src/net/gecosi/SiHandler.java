@@ -13,6 +13,7 @@ import java.util.TooManyListenersException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import net.gecosi.dataframe.SiDataFrame;
+import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiDriver;
 import net.gecosi.rxtxbridge.RxtxPort;
 
@@ -53,6 +54,7 @@ public class SiHandler implements Runnable {
 			if( portId.isCurrentlyOwned() ) {
 				siListener.notify(CommStatus.FATAL_ERROR, "Port owned by other app");
 			} else {
+				GecoSILogger.logTime("Start " + portname);
 				start();
 				SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
 				driver = new SiDriver(new RxtxPort(port), this).start();
@@ -81,6 +83,7 @@ public class SiHandler implements Runnable {
 	public Thread stop() {
 		driver.interrupt();
 		thread.interrupt();
+		GecoSILogger.close();
 		return thread;
 	}
 	
@@ -94,10 +97,12 @@ public class SiHandler implements Runnable {
 	}
 
 	public void notify(CommStatus status) {
+		GecoSILogger.log("Status: ", status.name());
 		siListener.notify(status);
 	}
 
 	public void notifyError(CommStatus errorStatus, String errorMessage) {
+		GecoSILogger.error(errorMessage);
 		siListener.notify(errorStatus, errorMessage);
 	}
 	

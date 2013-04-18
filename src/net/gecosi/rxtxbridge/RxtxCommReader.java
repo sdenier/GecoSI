@@ -6,10 +6,10 @@ package net.gecosi.rxtxbridge;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiMessage;
 import net.gecosi.internal.SiMessageQueue;
 
@@ -37,7 +37,7 @@ public class RxtxCommReader implements SerialPortEventListener {
 			byte[] answer = new byte[MAX_MESSAGE_SIZE];
 			int nbBytes = this.input.read(answer);
 			if( awaitingSecondFragment() ) {
-				System.err.println("Message fragment 2");
+				GecoSILogger.debug("Message fragment 2");
 				byte[] messsageFrame = Arrays.copyOf(messageFragment, messageFragment.length + nbBytes);
 				System.arraycopy(answer, 0, messsageFrame, messageFragment.length, nbBytes);
 				queueMessage(new SiMessage(messsageFrame));
@@ -46,16 +46,12 @@ public class RxtxCommReader implements SerialPortEventListener {
 				if( messageInOnePiece(answer, nbBytes) ) {
 					queueMessage(extractMessage(answer, nbBytes));
 				} else {
-					System.err.println("Message fragment 1");
+					GecoSILogger.debug("Message fragment 1");
 					messageFragment = Arrays.copyOfRange(answer, 0, nbBytes);
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			GecoSILogger.error(e.getLocalizedMessage());
 		}
 	}
 	
@@ -69,7 +65,7 @@ public class RxtxCommReader implements SerialPortEventListener {
 
 	private void queueMessage(SiMessage message) throws InterruptedException {
 		messageQueue.put(message);
-		System.out.format("RECEIVE: %s CRC %s %n", message.toString(), message.toStringCRC());
+		GecoSILogger.log("READ", message.toString());
 	}
 
 	private SiMessage extractMessage(byte[] answer, int nbBytes) {

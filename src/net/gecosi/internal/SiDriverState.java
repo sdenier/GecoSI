@@ -76,12 +76,14 @@ public enum SiDriverState {
 			siHandler.notify(CommStatus.PROCESSING);
 			switch (message.commandByte()) {
 			case SiMessage.SI_CARD_5_DETECTED:
+				GecoSILogger.log("State --> ", READ_SICARD_5.name());
 				return READ_SICARD_5.send(writer);
 			case SiMessage.SI_CARD_8_PLUS_DETECTED:
+				GecoSILogger.log("State --> ", RETRIEVE_SICARD_8_9_DATA.name());
 				return RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
 			case SiMessage.SI_CARD_REMOVED:
 			default:
-				// TODO log?
+				GecoSILogger.debug("Unexpected message " + message.toString());
 				return DISPATCH_READY;
 			}
 		}
@@ -103,10 +105,10 @@ public enum SiDriverState {
 					siHandler.notify(new Si5DataFrame(message));
 					return ACK_READ.send(writer);
 				} else {
-					return errorFallback(siHandler);
+					return errorFallback(siHandler, "Invalid message");
 				}
 			} catch (TimeoutException e) {
-				 return errorFallback(siHandler);
+				 return errorFallback(siHandler, "Timeout");
 			}
 		}
 	},
@@ -126,14 +128,13 @@ public enum SiDriverState {
 					if( received_message.check(send_message.commandByte()) ){
 						data_messages[i] = received_message;
 					} else {
-						System.out.println("Unexpected message!");
-						return errorFallback(siHandler);
+						return errorFallback(siHandler, "Invalid message");
 					}		
 				}
 				siHandler.notify(new Si8_9DataFrame(data_messages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
-				 return errorFallback(siHandler);
+				 return errorFallback(siHandler, "Timeout");
 			}
 		}		
 	},
@@ -153,10 +154,10 @@ public enum SiDriverState {
 				if( message.check(SiMessage.SI_CARD_REMOVED) ){
 					 return DISPATCH_READY;
 				 } else {
-					 return errorFallback(siHandler);
+					 return errorFallback(siHandler, "Invalid message");
 				 }
 			} catch (TimeoutException e) {
-				return errorFallback(siHandler);
+				return errorFallback(siHandler, "Timeout");
 			}
 		}		
 	};
@@ -199,7 +200,8 @@ public enum SiDriverState {
 		return message;
 	}
 
-	public SiDriverState errorFallback(SiHandler siHandler) {
+	public SiDriverState errorFallback(SiHandler siHandler, String errorMessage) {
+		GecoSILogger.error(errorMessage);
 		siHandler.notify(CommStatus.PROCESSING_ERROR);
 		return DISPATCH_READY;
 	}

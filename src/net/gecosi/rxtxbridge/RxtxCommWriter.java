@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiMessage;
 
 /**
@@ -23,8 +24,7 @@ public class RxtxCommWriter implements CommWriter {
 	}
 
 	public void write_debug(SiMessage message) throws IOException {
-		System.out.format("SEND: %s CRC %s %n", message.toString(), message.toStringCRC());
-		System.out.flush();
+		GecoSILogger.log("SEND", message.toString());
 		this.output.write(message.sequence());
 	}
 

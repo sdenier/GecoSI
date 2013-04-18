@@ -46,16 +46,16 @@ public class SiDriver implements Runnable {
 		try {
 			SiDriverState currentState = startupBootstrap();
 			while( isAlive(currentState) ) {
+				GecoSILogger.log("State --> ", currentState.name());
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}
 			if( currentState.isError() ) {
 				siHandler.notifyError(CommStatus.FATAL_ERROR, currentState.status());
 			}
 		} catch (InterruptedException e) {
-			// TODO normal way out?
+			// normal way out
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			GecoSILogger.error(e.getLocalizedMessage());
 		} finally {
 			stop();
 		}
