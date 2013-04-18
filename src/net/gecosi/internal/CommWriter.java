@@ -12,6 +12,6 @@ import java.io.IOException;
  */
 public interface CommWriter {
 
-	public void write_debug(SiMessage message) throws IOException;
+	public void write(SiMessage message) throws IOException;
 
 }

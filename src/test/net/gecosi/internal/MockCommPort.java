@@ -48,7 +48,7 @@ public class MockCommPort implements SiPort {
 	}
 
 	public class MockComm implements CommWriter {
-		public void write_debug(SiMessage message) throws IOException {}
+		public void write(SiMessage message) throws IOException {}
 	}
 
 	public void setupHighSpeed() throws UnsupportedCommOperationException {}

@@ -20,7 +20,7 @@ public enum SiDriverState {
 	
 	STARTUP {
 		public SiDriverState send(CommWriter writer) throws IOException {
-			writer.write_debug(SiMessage.startup_sequence);
+			writer.write(SiMessage.startup_sequence);
 			return STARTUP_CHECK;
 		}
 	},
@@ -42,7 +42,7 @@ public enum SiDriverState {
 
 	GET_CONFIG {
 		public SiDriverState send(CommWriter writer) throws IOException {
-			writer.write_debug(SiMessage.get_protocol_configuration);
+			writer.write(SiMessage.get_protocol_configuration);
 			return EXTENDED_PROTOCOL_CHECK;
 		}
 	},
@@ -52,7 +52,7 @@ public enum SiDriverState {
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
-				writer.write_debug(SiMessage.beep_twice);
+				writer.write(SiMessage.beep_twice);
 				siHandler.notify(CommStatus.ON);
 				return DISPATCH_READY;
 			} else {
@@ -91,7 +91,7 @@ public enum SiDriverState {
 	
 	READ_SICARD_5 {
 		public SiDriverState send(CommWriter writer) throws IOException {
-			writer.write_debug(SiMessage.read_sicard_5);
+			writer.write(SiMessage.read_sicard_5);
 			return WAIT_SICARD_5_DATA;
 		}
 	},
@@ -123,7 +123,7 @@ public enum SiDriverState {
 				SiMessage[] data_messages = new SiMessage[retrieval_messages.length];
 				for (int i = 0; i < retrieval_messages.length; i++) {
 					SiMessage send_message = retrieval_messages[i];
-					writer.write_debug(send_message);
+					writer.write(send_message);
 					SiMessage received_message = queue.timeoutPoll();
 					if( received_message.check(send_message.commandByte()) ){
 						data_messages[i] = received_message;
@@ -141,7 +141,7 @@ public enum SiDriverState {
 	
 	ACK_READ {
 		public SiDriverState send(CommWriter writer) throws IOException {
-			writer.write_debug(SiMessage.ack_sequence);
+			writer.write(SiMessage.ack_sequence);
 			return WAIT_SICARD_REMOVAL;
 		}		
 	},

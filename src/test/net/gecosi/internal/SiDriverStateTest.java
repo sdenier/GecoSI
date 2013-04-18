@@ -54,7 +54,7 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_CHECK));
-		verify(writer).write_debug(SiMessage.get_protocol_configuration);
+		verify(writer).write(SiMessage.get_protocol_configuration);
 	}
 
 	@Test(expected=TimeoutException.class)
@@ -98,7 +98,7 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_5_DATA));
-		verify(writer).write_debug(SiMessage.read_sicard_5);
+		verify(writer).write(SiMessage.read_sicard_5);
 	}
 	
 	@Test
@@ -106,7 +106,7 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard5_data);
 		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
 
-		verify(writer).write_debug(SiMessage.ack_sequence);
+		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si5DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
@@ -132,7 +132,7 @@ public class SiDriverStateTest {
 	public void DISPATCH_READY_dispatchesSiCard8() throws Exception {
 		queue.add(SiMessageFixtures.sicard8_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b0);
+		verify(writer).write(SiMessage.read_sicard_8_plus_b0);
 	}
 
 	@Test
@@ -141,9 +141,9 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard9_b1_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
 
-		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b0);
-		verify(writer).write_debug(SiMessage.read_sicard_8_plus_b1);
-		verify(writer).write_debug(SiMessage.ack_sequence);
+		verify(writer).write(SiMessage.read_sicard_8_plus_b0);
+		verify(writer).write(SiMessage.read_sicard_8_plus_b1);
+		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si8_9DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}

@@ -23,7 +23,7 @@ public class RxtxCommWriter implements CommWriter {
 		this.output = out;
 	}
 
-	public void write_debug(SiMessage message) throws IOException {
+	public void write(SiMessage message) throws IOException {
 		GecoSILogger.log("SEND", message.toString());
 		this.output.write(message.sequence());
 	}
