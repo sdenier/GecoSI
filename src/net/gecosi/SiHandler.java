@@ -54,6 +54,7 @@ public class SiHandler implements Runnable {
 			if( portId.isCurrentlyOwned() ) {
 				siListener.notify(CommStatus.FATAL_ERROR, "Port owned by other app");
 			} else {
+				GecoSILogger.log("######", "");
 				GecoSILogger.logTime("Start " + portname);
 				start();
 				SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
@@ -97,7 +98,7 @@ public class SiHandler implements Runnable {
 	}
 
 	public void notify(CommStatus status) {
-		GecoSILogger.log("Status: ", status.name());
+		GecoSILogger.log("!", status.name());
 		siListener.notify(status);
 	}
 

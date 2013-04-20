@@ -57,6 +57,10 @@ public class GecoSILogger {
 	public static void logTime(String message) {
 		log(new Date().toString(), message);
 	}
+
+	public static void stateChanged(String message) {
+		log("-->", message);
+	}
 	
 	public static void info(String message) {
 		log("[Info]", message);

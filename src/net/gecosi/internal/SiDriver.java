@@ -46,7 +46,7 @@ public class SiDriver implements Runnable {
 		try {
 			SiDriverState currentState = startupBootstrap();
 			while( isAlive(currentState) ) {
-				GecoSILogger.log("State --> ", currentState.name());
+				GecoSILogger.stateChanged(currentState.name());
 				currentState = currentState.receive(messageQueue, writer, siHandler);
 			}
 			if( currentState.isError() ) {

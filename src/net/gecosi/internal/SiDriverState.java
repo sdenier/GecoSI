@@ -76,12 +76,13 @@ public enum SiDriverState {
 			siHandler.notify(CommStatus.PROCESSING);
 			switch (message.commandByte()) {
 			case SiMessage.SI_CARD_5_DETECTED:
-				GecoSILogger.log("State --> ", READ_SICARD_5.name());
+				GecoSILogger.stateChanged(READ_SICARD_5.name());
 				return READ_SICARD_5.send(writer);
 			case SiMessage.SI_CARD_8_PLUS_DETECTED:
-				GecoSILogger.log("State --> ", RETRIEVE_SICARD_8_9_DATA.name());
+				GecoSILogger.stateChanged(RETRIEVE_SICARD_8_9_DATA.name());
 				return RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
-			case SiMessage.SI_CARD_REMOVED:
+			case SiMessage.BEEP:
+				return DISPATCH_READY;
 			default:
 				GecoSILogger.debug("Unexpected message " + message.toString());
 				return DISPATCH_READY;
