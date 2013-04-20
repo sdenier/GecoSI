@@ -12,6 +12,7 @@ import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
+import net.gecosi.dataframe.Si10SeriesDataFrame;
 import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.Si8_9DataFrame;
 import net.gecosi.internal.CommWriter;
@@ -45,7 +46,7 @@ public class SiDriverStateTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		queue = new SiMessageQueue(5, 1);
+		queue = new SiMessageQueue(10, 1);
 	}
 	
 	@Test
@@ -151,6 +152,24 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard10_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
 		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+	}
+
+	@Test
+	public void RETRIEVE_SICARD_10_PLUS_DATA() throws Exception {
+		queue.add(SiMessageFixtures.sicard10_b0_data);
+		queue.add(SiMessageFixtures.sicard10_b1_data);
+		queue.add(SiMessageFixtures.sicard10_b2_data);
+		queue.add(SiMessageFixtures.sicard10_b3_data);
+		queue.add(SiMessageFixtures.sicard10_b4_data);
+		queue.add(SiMessageFixtures.sicard10_b5_data);
+		queue.add(SiMessageFixtures.sicard10_b6_data);
+		queue.add(SiMessageFixtures.sicard10_b7_data);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
+
+		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.ack_sequence);
+		verify(siHandler).notify(any(Si10SeriesDataFrame.class));
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
 	
 	@Test
