@@ -95,16 +95,14 @@ public class SiDriverStateTest {
 	@Test
 	public void DISPATCH_READY_dispatchesSiCard5() throws Exception {
 		queue.add(SiMessageFixtures.sicard5_detected);
-		SiDriverState nextState = SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-
-		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_5_DATA));
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
 		verify(writer).write(SiMessage.read_sicard_5);
 	}
 	
 	@Test
-	public void WAIT_SICARD_5_DATA() throws Exception {
+	public void RETRIEVE_SICARD_5_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard5_data);
-		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_5_DATA.retrieve(queue, writer, siHandler);
 
 		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si5DataFrame.class));
@@ -112,17 +110,17 @@ public class SiDriverStateTest {
 	}
 
 	@Test
-	public void WAIT_SICARD_5_DATA_removedFallbackToDispatchReady() throws Exception {
+	public void RETRIEVE_SICARD_5_DATA_earlySiCardRemovalFallbackToDispatchReady() throws Exception {
 		queue.add(SiMessageFixtures.sicard5_removed);
-		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_5_DATA.retrieve(queue, writer, siHandler);
 
 		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
 	@Test
-	public void WAIT_SICARD_5_DATA_timeoutFallbackToDispatchReady() throws Exception {
-		SiDriverState nextState = SiDriverState.WAIT_SICARD_5_DATA.receive(queue, writer, siHandler);
+	public void RETRIEVE_SICARD_5_DATA_DATA_timeoutFallbackToDispatchReady() throws Exception {
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_5_DATA.retrieve(queue, writer, siHandler);
 
 		verify(siHandler).notify(CommStatus.PROCESSING_ERROR);
 		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
@@ -139,7 +137,7 @@ public class SiDriverStateTest {
 	public void RETRIEVE_SICARD_8_9_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard9_b0_data);
 		queue.add(SiMessageFixtures.sicard9_b1_data);
-		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_8_9_DATA.retrieve(queue, writer, siHandler);
 
 		verify(writer).write(SiMessage.read_sicard_8_plus_b0);
 		verify(writer).write(SiMessage.read_sicard_8_plus_b1);
