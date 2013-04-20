@@ -145,6 +145,13 @@ public class SiDriverStateTest {
 		verify(siHandler).notify(any(Si8_9DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
+
+	@Test
+	public void DISPATCH_READY_dispatchesSiCard10() throws Exception {
+		queue.add(SiMessageFixtures.sicard10_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+	}
 	
 	@Test
 	public void WAIT_SICARD_REMOVAL() throws Exception {

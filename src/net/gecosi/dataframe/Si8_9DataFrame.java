@@ -88,7 +88,7 @@ public class Si8_9DataFrame extends SiAbstractDataFrame {
 
 	@Override
 	public String sicardSeries() {
-		return "SiCard 8-9";
+		return "SiCard 8/9";
 	}
 
 }

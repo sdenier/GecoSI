@@ -118,8 +118,15 @@ public class SiMessage {
 	public static final byte GET_SI_CARD_8_PLUS_BN = (byte) 0xEF;
 	public static final byte GET_SI_CARD_6_PLUS_BN = (byte) 0xE1;
 
-	public static final SiMessage NULL = new SiMessage(new byte[0]);
-
+	/*
+	 * SiCard special data
+	 */
+	public static final int SI3_NUMBER_INDEX = 5;
+	public static final byte SI_CARD_10_PLUS_SERIES = 0x0F;
+	
+	/*
+	 * Command messages
+	 */
 	public static final SiMessage startup_sequence = new SiMessage(new byte[] {
 		WAKEUP, STX, STX, SET_MASTER_MODE, 0x01, DIRECT_MODE, 0x6D, 0x0A, ETX
 	});
@@ -142,6 +149,10 @@ public class SiMessage {
 
 	public static final SiMessage read_sicard_8_plus_b1 = new SiMessage(new byte[] {
 		STX, GET_SI_CARD_8_PLUS_BN, 0x01, 0x01, (byte) 0xE3, 0x09, ETX	
+	});
+
+	public static final SiMessage read_sicard_10_plus_b8 = new SiMessage(new byte[] {
+		STX, GET_SI_CARD_8_PLUS_BN, 0x01, 0x08, (byte) 0xEA, 0x09, ETX	
 	});
 
 	public static final SiMessage beep_twice = new SiMessage(new byte[] {

@@ -10,6 +10,7 @@ import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
 import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.Si8_9DataFrame;
+import net.gecosi.dataframe.Si10SeriesDataFrame;
 
 /**
  * @author Simon Denier
@@ -70,7 +71,7 @@ public enum SiDriverState {
 	
 	DISPATCH_READY {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
+				throws IOException, InterruptedException {
 			siHandler.notify(CommStatus.READY);
 			SiMessage message = queue.take();
 			siHandler.notify(CommStatus.PROCESSING);
@@ -78,7 +79,7 @@ public enum SiDriverState {
 			case SiMessage.SI_CARD_5_DETECTED:
 				return RETRIEVE_SICARD_5_DATA.retrieve(queue, writer, siHandler);
 			case SiMessage.SI_CARD_8_PLUS_DETECTED:
-				return RETRIEVE_SICARD_8_9_DATA.retrieve(queue, writer, siHandler);
+				return dispatchSicard8Plus(message, queue, writer, siHandler);
 			case SiMessage.BEEP:
 				break;
 			case SiMessage.SI_CARD_REMOVED:
@@ -88,6 +89,15 @@ public enum SiDriverState {
 				GecoSILogger.debug("Unexpected message " + message.toString());
 			}
 			return DISPATCH_READY;
+		}
+
+		private SiDriverState dispatchSicard8Plus(SiMessage message, SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			if( message.sequence(SiMessage.SI3_NUMBER_INDEX) == SiMessage.SI_CARD_10_PLUS_SERIES ) {
+				return RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
+			} else {
+				return RETRIEVE_SICARD_8_9_DATA.retrieve(queue, writer, siHandler);
+			}
 		}
 	},
 	
@@ -123,6 +133,23 @@ public enum SiDriverState {
 				return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
 			}
 		}		
+	},
+
+	RETRIEVE_SICARD_10_PLUS_DATA {
+		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			GecoSILogger.stateChanged(RETRIEVE_SICARD_10_PLUS_DATA.name());
+			try {
+				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
+						SiMessage.read_sicard_10_plus_b8 });
+				siHandler.notify(new Si10SeriesDataFrame(dataMessages));
+				return ACK_READ.send(writer);
+			} catch (TimeoutException e) {
+				return errorFallback(siHandler, "Timeout on retrieving SiCard 10/11/SIAC data");
+			} catch (InvalidMessage e) {
+				return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
+			}
+		}
 	},
 	
 	ACK_READ {
@@ -161,7 +188,7 @@ public enum SiDriverState {
 	}
 
 	public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-			throws IOException, InterruptedException, TimeoutException, InvalidMessage {
+			throws IOException, InterruptedException {
 		wrongCall();
 		return this;
 	}
