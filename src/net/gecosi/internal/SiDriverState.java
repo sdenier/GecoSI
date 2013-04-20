@@ -82,11 +82,14 @@ public enum SiDriverState {
 				GecoSILogger.stateChanged(RETRIEVE_SICARD_8_9_DATA.name());
 				return RETRIEVE_SICARD_8_9_DATA.receive(queue, writer, siHandler);
 			case SiMessage.BEEP:
-				return DISPATCH_READY;
+				break;
+			case SiMessage.SI_CARD_REMOVED:
+				GecoSILogger.debug("Late removal " + message.toString());
+				break;
 			default:
 				GecoSILogger.debug("Unexpected message " + message.toString());
-				return DISPATCH_READY;
 			}
+			return DISPATCH_READY;
 		}
 	},
 	
@@ -109,7 +112,7 @@ public enum SiDriverState {
 					return errorFallback(siHandler, "Invalid message");
 				}
 			} catch (TimeoutException e) {
-				 return errorFallback(siHandler, "Timeout");
+				 return errorFallback(siHandler, "Timeout on retrieving SiCard 5 data");
 			}
 		}
 	},
@@ -123,10 +126,10 @@ public enum SiDriverState {
 				};
 				SiMessage[] data_messages = new SiMessage[retrieval_messages.length];
 				for (int i = 0; i < retrieval_messages.length; i++) {
-					SiMessage send_message = retrieval_messages[i];
-					writer.write(send_message);
+					SiMessage message_to_send = retrieval_messages[i];
+					writer.write(message_to_send);
 					SiMessage received_message = queue.timeoutPoll();
-					if( received_message.check(send_message.commandByte()) ){
+					if( received_message.check(message_to_send.commandByte()) ){
 						data_messages[i] = received_message;
 					} else {
 						return errorFallback(siHandler, "Invalid message");
@@ -135,7 +138,7 @@ public enum SiDriverState {
 				siHandler.notify(new Si8_9DataFrame(data_messages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
-				 return errorFallback(siHandler, "Timeout");
+				return errorFallback(siHandler, "Timeout on retrieving SiCard 8/9 data");
 			}
 		}		
 	},
@@ -151,14 +154,13 @@ public enum SiDriverState {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
 			try {
-				SiMessage message = queue.timeoutPoll();
-				if( message.check(SiMessage.SI_CARD_REMOVED) ){
-					 return DISPATCH_READY;
-				 } else {
-					 return errorFallback(siHandler, "Invalid message");
-				 }
+				pollAnswer(queue, SiMessage.SI_CARD_REMOVED);
+				return DISPATCH_READY;
 			} catch (TimeoutException e) {
-				return errorFallback(siHandler, "Timeout");
+				GecoSILogger.info("Timeout on SiCard removal");
+				return DISPATCH_READY;
+			} catch (InvalidMessage e) {
+				return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
 			}
 		}		
 	};
