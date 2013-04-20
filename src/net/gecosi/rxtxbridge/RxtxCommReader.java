@@ -51,7 +51,8 @@ public class RxtxCommReader implements SerialPortEventListener {
 				}
 			}
 		} catch (Exception e) {
-			GecoSILogger.error(e.getLocalizedMessage());
+			e.printStackTrace();
+			GecoSILogger.error(" #serialEvent# " + e.toString());
 		}
 	}
 	

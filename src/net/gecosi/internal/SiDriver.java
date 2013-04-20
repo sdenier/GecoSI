@@ -55,7 +55,8 @@ public class SiDriver implements Runnable {
 		} catch (InterruptedException e) {
 			// normal way out
 		} catch (Exception e) {
-			GecoSILogger.error(e.getLocalizedMessage());
+			e.printStackTrace();
+			GecoSILogger.error(" #run# " + e.toString());
 		} finally {
 			stop();
 		}
