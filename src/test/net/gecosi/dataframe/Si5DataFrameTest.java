@@ -5,9 +5,9 @@ package test.net.gecosi.dataframe;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import net.gecosi.SiPunch;
 import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.SiDataFrame;
+import net.gecosi.dataframe.SiPunch;
 import net.gecosi.internal.SiMessage;
 
 import org.junit.Test;

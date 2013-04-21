@@ -3,7 +3,6 @@
  */
 package net.gecosi.dataframe;
 
-import net.gecosi.SiPunch;
 
 /**
  * @author Simon Denier

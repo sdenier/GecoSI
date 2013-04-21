@@ -10,9 +10,9 @@ import static test.net.gecosi.SiMessageFixtures.sicard10_b4_data;
 import static test.net.gecosi.SiMessageFixtures.sicard10_b5_data;
 import static test.net.gecosi.SiMessageFixtures.sicard10_b6_data;
 import static test.net.gecosi.SiMessageFixtures.sicard10_b7_data;
-import net.gecosi.SiPunch;
 import net.gecosi.dataframe.Si8PlusDataFrame;
 import net.gecosi.dataframe.SiDataFrame;
+import net.gecosi.dataframe.SiPunch;
 import net.gecosi.internal.SiMessage;
 
 import org.junit.Test;

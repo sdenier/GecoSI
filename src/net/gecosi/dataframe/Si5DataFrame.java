@@ -5,7 +5,6 @@ package net.gecosi.dataframe;
 
 import java.util.Arrays;
 
-import net.gecosi.SiPunch;
 import net.gecosi.internal.SiMessage;
 
 /**

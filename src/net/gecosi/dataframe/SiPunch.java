@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi;
+package net.gecosi.dataframe;
 
 /**
  * @author Simon Denier
