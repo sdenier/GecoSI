@@ -8,9 +8,8 @@ import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
-import net.gecosi.dataframe.Si10SeriesDataFrame;
 import net.gecosi.dataframe.Si5DataFrame;
-import net.gecosi.dataframe.Si8_9DataFrame;
+import net.gecosi.dataframe.Si8PlusDataFrame;
 
 /**
  * @author Simon Denier
@@ -125,7 +124,7 @@ public enum SiDriverState {
 			try {
 				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
 						SiMessage.read_sicard_8_plus_b0, SiMessage.read_sicard_8_plus_b1 });
-				siHandler.notify(new Si8_9DataFrame(dataMessages));
+				siHandler.notify(new Si8PlusDataFrame(dataMessages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 8/9 data");
@@ -140,12 +139,13 @@ public enum SiDriverState {
 				throws IOException, InterruptedException {
 			GecoSILogger.stateChanged(RETRIEVE_SICARD_10_PLUS_DATA.name());
 			try {
-				SiMessage[] dataMessages = new SiMessage[8];
+				final int MOST_RELEVANT_BLOCKS = 5; // Blocks 0, 4..7
+				SiMessage[] dataMessages = new SiMessage[MOST_RELEVANT_BLOCKS];
 				writer.write(SiMessage.read_sicard_10_plus_b8);
 				for (int i = 0; i < dataMessages.length; i++) {
 					dataMessages[i] = pollAnswer(queue, SiMessage.GET_SI_CARD_8_PLUS_BN);
 				}
-				siHandler.notify(new Si10SeriesDataFrame(dataMessages));
+				siHandler.notify(new Si8PlusDataFrame(dataMessages));
 				return ACK_READ.send(writer);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 10/11/SIAC data");

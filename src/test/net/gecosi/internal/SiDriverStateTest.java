@@ -12,9 +12,8 @@ import java.util.concurrent.TimeoutException;
 
 import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
-import net.gecosi.dataframe.Si10SeriesDataFrame;
 import net.gecosi.dataframe.Si5DataFrame;
-import net.gecosi.dataframe.Si8_9DataFrame;
+import net.gecosi.dataframe.Si8PlusDataFrame;
 import net.gecosi.internal.CommWriter;
 import net.gecosi.internal.InvalidMessage;
 import net.gecosi.internal.SiDriverState;
@@ -143,7 +142,7 @@ public class SiDriverStateTest {
 		verify(writer).write(SiMessage.read_sicard_8_plus_b0);
 		verify(writer).write(SiMessage.read_sicard_8_plus_b1);
 		verify(writer).write(SiMessage.ack_sequence);
-		verify(siHandler).notify(any(Si8_9DataFrame.class));
+		verify(siHandler).notify(any(Si8PlusDataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
 
@@ -157,9 +156,6 @@ public class SiDriverStateTest {
 	@Test
 	public void RETRIEVE_SICARD_10_PLUS_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard10_b0_data);
-		queue.add(SiMessageFixtures.sicard10_b1_data);
-		queue.add(SiMessageFixtures.sicard10_b2_data);
-		queue.add(SiMessageFixtures.sicard10_b3_data);
 		queue.add(SiMessageFixtures.sicard10_b4_data);
 		queue.add(SiMessageFixtures.sicard10_b5_data);
 		queue.add(SiMessageFixtures.sicard10_b6_data);
@@ -168,7 +164,7 @@ public class SiDriverStateTest {
 
 		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
 		verify(writer).write(SiMessage.ack_sequence);
-		verify(siHandler).notify(any(Si10SeriesDataFrame.class));
+		verify(siHandler).notify(any(Si8PlusDataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
 	
