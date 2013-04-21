@@ -154,6 +154,13 @@ public class SiDriverStateTest {
 	}
 
 	@Test
+	public void DISPATCH_READY_dispatchesSiCard11() throws Exception {
+		queue.add(SiMessageFixtures.sicard11_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+	}
+	
+	@Test
 	public void RETRIEVE_SICARD_10_PLUS_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard10_b0_data);
 		queue.add(SiMessageFixtures.sicard10_b4_data);
