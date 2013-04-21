@@ -99,7 +99,7 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 	}
 
 	@Override
-	public String sicardSeries() {
+	public String getSiSeries() {
 		return "SiCard 5";
 	}
 

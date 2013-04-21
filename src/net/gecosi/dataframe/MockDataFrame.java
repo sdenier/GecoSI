@@ -26,7 +26,7 @@ public class MockDataFrame extends AbstractDataFrame {
 	}
 
 	@Override
-	public String sicardSeries() {
+	public String getSiSeries() {
 		return "Mock Sicard";
 	}
 	

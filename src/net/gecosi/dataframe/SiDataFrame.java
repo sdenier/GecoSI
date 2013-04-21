@@ -20,6 +20,8 @@ public interface SiDataFrame {
 
 	public String getSiNumber();
 
+	public String getSiSeries();
+
 	public long getStartTime();
 
 	public long getFinishTime();

@@ -26,6 +26,11 @@ public class Si8DataFrameTest {
 	}
 
 	@Test
+	public void getSiCardSeries() {
+		assertThat(subject2005331().getSiSeries(), equalTo("SiCard 8"));
+	}
+
+	@Test
 	public void getStartTime() {
 		assertThat(subject2005331().getStartTime(), equalTo(71950000L));
 	}

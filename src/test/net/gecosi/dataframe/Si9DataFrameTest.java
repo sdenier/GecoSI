@@ -26,6 +26,11 @@ public class Si9DataFrameTest {
 	}
 
 	@Test
+	public void getSiCardSeries() {
+		assertThat(subject1061511().getSiSeries(), equalTo("SiCard 9"));
+	}
+
+	@Test
 	public void getStartTime() {
 		assertThat(subject1061511().getStartTime(), equalTo(40561000L));
 	}
