@@ -3,7 +3,6 @@
  */
 package net.gecosi.dataframe;
 
-import java.util.Arrays;
 
 import net.gecosi.internal.SiMessage;
 
@@ -13,6 +12,8 @@ import net.gecosi.internal.SiMessage;
  *
  */
 public class Si8PlusDataFrame extends SiAbstractDataFrame {
+
+	public static final int PAGE_SIZE = 4;
 	
 	private static final int SINUMBER_PAGE = 6 * PAGE_SIZE;
 
@@ -36,22 +37,14 @@ public class Si8PlusDataFrame extends SiAbstractDataFrame {
 
 	private SiPlusSeries siSeries;
 
-	public Si8PlusDataFrame(SiMessage[] data_messages) {
-		this.dataFrame	= extractDataFrame(data_messages);
+	public Si8PlusDataFrame(SiMessage[] dataMessages) {
+		this.dataFrame	= extractDataFrame(dataMessages);
 		this.siSeries	= extractSiSeries();
 		this.siNumber	= extractSiNumber();
 		this.startTime	= extractStartTime();
 		this.finishTime	= extractFinishTime();
 		this.checkTime	= extractCheckTime();
 		this.punches	= extractPunches();
-	}
-
-	protected byte[] extractDataFrame(SiMessage[] dataMessages) {
-		byte[] dataFrame = Arrays.copyOfRange(dataMessages[0].sequence(), 6, dataMessages.length * 128 + 6);
-		for (int i = 1; i < dataMessages.length; i++) {
-			System.arraycopy(dataMessages[i].sequence(), 6, dataFrame, i * 128, 128);
-		}
-		return dataFrame;
 	}
 
 	protected SiPlusSeries extractSiSeries() {

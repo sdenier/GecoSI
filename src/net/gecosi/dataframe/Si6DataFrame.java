@@ -13,7 +13,12 @@ import net.gecosi.internal.SiMessage;
 public class Si6DataFrame extends SiAbstractDataFrame {
 
 	public Si6DataFrame(SiMessage[] dataMessages) {
-		// TODO Auto-generated constructor stub
+		this.dataFrame	= extractDataFrame(dataMessages);
+		this.siNumber	= "N/A";
+		this.startTime	= NO_TIME;
+		this.finishTime	= NO_TIME;
+		this.checkTime	= NO_TIME;
+		this.punches	= new SiPunch[0];
 	}
 
 	@Override
