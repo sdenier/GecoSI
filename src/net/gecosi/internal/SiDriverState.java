@@ -20,7 +20,7 @@ import net.gecosi.dataframe.Si8PlusDataFrame;
 public enum SiDriverState {
 	
 	STARTUP {
-		public SiDriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.startup_sequence);
 			return STARTUP_CHECK;
 		}
@@ -30,7 +30,7 @@ public enum SiDriverState {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			pollAnswer(queue, SiMessage.SET_MASTER_MODE);
-			return GET_CONFIG.send(writer);
+			return GET_CONFIG.send(writer, siHandler);
 		}
 	},
 
@@ -42,7 +42,7 @@ public enum SiDriverState {
 	},
 
 	GET_CONFIG {
-		public SiDriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.get_protocol_configuration);
 			return EXTENDED_PROTOCOL_CHECK;
 		}
@@ -53,7 +53,7 @@ public enum SiDriverState {
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
-				return GET_SI6_CARDBLOCKS.send(writer);
+				return GET_SI6_CARDBLOCKS.send(writer, siHandler);
 			} else {
 				return EXTENDED_PROTOCOL_ERROR;
 			}
@@ -68,7 +68,7 @@ public enum SiDriverState {
 	},
 	
 	GET_SI6_CARDBLOCKS {
-		public SiDriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.get_cardblocks_configuration);
 			return SI6_CARDBLOCKS_SETTING;
 		}
@@ -80,14 +80,14 @@ public enum SiDriverState {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			si6_192PunchesMode = (message.sequence(6) & 0xFF) == 0xFF;
 			GecoSILogger.info("SiCard6 192 Punches Mode " + (si6_192PunchesMode ? "Enabled" : "Disabled"));
-			siHandler.notify(CommStatus.ON);
-			return STARTUP_COMPLETE.send(writer);
+			return STARTUP_COMPLETE.send(writer, siHandler);
 		}
 	},
 
 	STARTUP_COMPLETE {
-		public SiDriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.beep_twice);
+			siHandler.notify(CommStatus.ON);
 			return DISPATCH_READY;
 		}
 	},
@@ -134,7 +134,7 @@ public enum SiDriverState {
 				writer.write(SiMessage.read_sicard_5);
 				SiMessage dataMessage = pollAnswer(queue, SiMessage.GET_SI_CARD_5);
 				siHandler.notify(new Si5DataFrame(dataMessage));
-				return ACK_READ.send(writer);
+				return ACK_READ.send(writer, siHandler);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 5 data");
 			} catch (InvalidMessage e) {
@@ -151,7 +151,7 @@ public enum SiDriverState {
 				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
 						SiMessage.read_sicard_6_b0, SiMessage.read_sicard_6_b6, SiMessage.read_sicard_6_b7 });
 				siHandler.notify(new Si6DataFrame(dataMessages));
-				return ACK_READ.send(writer);
+				return ACK_READ.send(writer, siHandler);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 6 data");
 			} catch (InvalidMessage e) {
@@ -168,7 +168,7 @@ public enum SiDriverState {
 				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
 						SiMessage.read_sicard_8_plus_b0, SiMessage.read_sicard_8_plus_b1 });
 				siHandler.notify(new Si8PlusDataFrame(dataMessages));
-				return ACK_READ.send(writer);
+				return ACK_READ.send(writer, siHandler);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 8/9 data");
 			} catch (InvalidMessage e) {
@@ -189,7 +189,7 @@ public enum SiDriverState {
 					dataMessages[i] = pollAnswer(queue, SiMessage.GET_SI_CARD_8_PLUS_BN);
 				}
 				siHandler.notify(new Si8PlusDataFrame(dataMessages));
-				return ACK_READ.send(writer);
+				return ACK_READ.send(writer, siHandler);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 10/11/SIAC data");
 			} catch (InvalidMessage e) {
@@ -199,7 +199,7 @@ public enum SiDriverState {
 	},
 	
 	ACK_READ {
-		public SiDriverState send(CommWriter writer) throws IOException {
+		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.ack_sequence);
 			return WAIT_SICARD_REMOVAL;
 		}		
@@ -228,7 +228,7 @@ public enum SiDriverState {
 		return si6_192PunchesMode;
 	}
 	
-	public SiDriverState send(CommWriter writer) throws IOException {
+	public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 		wrongCall();
 		return this;
 	}

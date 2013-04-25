@@ -84,7 +84,7 @@ public class SiDriver implements Runnable {
 
 	private SiDriverState startup()
 			throws IOException, InterruptedException, TimeoutException, InvalidMessage {
-		SiDriverState currentState = SiDriverState.STARTUP.send(writer).receive(messageQueue, writer, siHandler);
+		SiDriverState currentState = SiDriverState.STARTUP.send(writer, siHandler).receive(messageQueue, writer, siHandler);
 		return currentState;
 	}
 
