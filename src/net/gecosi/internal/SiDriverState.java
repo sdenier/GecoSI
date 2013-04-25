@@ -53,9 +53,7 @@ public enum SiDriverState {
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
 			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
-				writer.write(SiMessage.beep_twice);
-				siHandler.notify(CommStatus.ON);
-				return DISPATCH_READY;
+				return GET_SI6_CARDBLOCKS.send(writer);
 			} else {
 				return EXTENDED_PROTOCOL_ERROR;
 			}
@@ -66,6 +64,31 @@ public enum SiDriverState {
 		public boolean isError() { return true; }
 		public String status() {
 			return "Master station should be configured with extended protocol";
+		}
+	},
+	
+	GET_SI6_CARDBLOCKS {
+		public SiDriverState send(CommWriter writer) throws IOException {
+			writer.write(SiMessage.get_cardblocks_configuration);
+			return SI6_CARDBLOCKS_SETTING;
+		}
+	},
+
+	SI6_CARDBLOCKS_SETTING {
+		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
+			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
+			si6_192PunchesMode = (message.sequence(6) & 0xFF) == 0xFF;
+			GecoSILogger.info("SiCard6 192 Punches Mode " + (si6_192PunchesMode ? "Enabled" : "Disabled"));
+			siHandler.notify(CommStatus.ON);
+			return STARTUP_COMPLETE.send(writer);
+		}
+	},
+
+	STARTUP_COMPLETE {
+		public SiDriverState send(CommWriter writer) throws IOException {
+			writer.write(SiMessage.beep_twice);
+			return DISPATCH_READY;
 		}
 	},
 	
@@ -199,6 +222,12 @@ public enum SiDriverState {
 
 	private static final int EXTENDED_PROTOCOL_MASK = 1;
 
+	private static boolean si6_192PunchesMode = false;
+
+	public static boolean sicard6_192PunchesMode() {
+		return si6_192PunchesMode;
+	}
+	
 	public SiDriverState send(CommWriter writer) throws IOException {
 		wrongCall();
 		return this;

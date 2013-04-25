@@ -4,7 +4,9 @@
 package test.net.gecosi.internal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -71,11 +73,10 @@ public class SiDriverStateTest {
 
 	@Test
 	public void EXTENDED_PROTOCOL_CHECK() throws Exception {
-		queue.add(SiMessageFixtures.config_answer);
+		queue.add(SiMessageFixtures.ok_ext_protocol_answer);
 		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
 
-		verify(siHandler).notify(CommStatus.ON);
-		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
+		assertThat(nextState, equalTo(SiDriverState.SI6_CARDBLOCKS_SETTING));
 	}
 
 	@Test
@@ -84,6 +85,26 @@ public class SiDriverStateTest {
 		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_ERROR));
+	}
+
+	@Test
+	public void SI6_CARDBLOCKS_SETTING_64PunchesMode() throws Exception {
+		queue.add(SiMessageFixtures.si6_64_punches_answer);
+		SiDriverState nextState = SiDriverState.SI6_CARDBLOCKS_SETTING.receive(queue, writer, siHandler);
+
+		verify(siHandler).notify(CommStatus.ON);
+		assertFalse(SiDriverState.sicard6_192PunchesMode());
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
+	}
+
+	@Test
+	public void SI6_CARDBLOCKS_SETTING_192PunchesMode() throws Exception {
+		queue.add(SiMessageFixtures.si6_192_punches_answer);
+		SiDriverState nextState = SiDriverState.SI6_CARDBLOCKS_SETTING.receive(queue, writer, siHandler);
+
+		verify(siHandler).notify(CommStatus.ON);
+		assertTrue(SiDriverState.sicard6_192PunchesMode());
+		assertThat(nextState, equalTo(SiDriverState.DISPATCH_READY));
 	}
 
 	@Test

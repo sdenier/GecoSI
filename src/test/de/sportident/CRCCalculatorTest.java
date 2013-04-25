@@ -50,9 +50,16 @@ public class CRCCalculatorTest {
 	}
 
 	@Test
-	public void testGetSystemValueCrc() {
+	public void testGetProtocolModeCrc() {
 		int expected_crc = 0x0414;
 		byte[] sample = new byte[] { (byte) 0x83, 0x02, 0x74, 0x01 };
+		assertThat(CRCCalculator.crc(sample), equalTo(expected_crc));
+	}
+
+	@Test
+	public void testGetCardBlocksCrc() {
+		int expected_crc = 0x1611;
+		byte[] sample = new byte[] { (byte) 0x83, 0x02, 0x33, 0x01 };
 		assertThat(CRCCalculator.crc(sample), equalTo(expected_crc));
 	}
 

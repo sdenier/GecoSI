@@ -134,7 +134,11 @@ public class SiMessage {
 	public static final SiMessage get_protocol_configuration = new SiMessage(new byte[] {
 		STX, GET_SYSTEM_VALUE, 0x02, 0x74, 0x01, 0x04, 0x14, ETX
 	});
-		
+
+	public static final SiMessage get_cardblocks_configuration = new SiMessage(new byte[] {
+		STX, GET_SYSTEM_VALUE, 0x02, 0x33 , 0x01, 0x16, 0x11, ETX
+	});
+	
 	public static final SiMessage ack_sequence = new SiMessage(new byte[] {
 		ACK
 	});
