@@ -10,22 +10,53 @@ import net.gecosi.internal.SiMessage;
  * @since Apr 22, 2013
  *
  */
-public class Si6DataFrame extends SiAbstractDataFrame {
+public class Si6DataFrame extends Si6PlusAbstractDataFrame {
 
+	public static final int PAGE_SIZE = 16;
+	
+	public static final int DOUBLE_WORD = 4;
+	
 	public Si6DataFrame(SiMessage[] dataMessages) {
-		this.dataFrame	= extractDataFrame(dataMessages);
-		this.siNumber	= "N/A";
-		this.startTime	= NO_TIME;
-		this.finishTime	= NO_TIME;
-		this.checkTime	= NO_TIME;
-		this.punches	= new SiPunch[0];
+		super(dataMessages);
+		initializeDataFields();
 	}
 
 	@Override
-	public SiDataFrame startingAt(long zerohour) {
-		return this;
+	protected int siNumberIndex() {
+		return 2 * DOUBLE_WORD + 3;
 	}
 
+	@Override
+	protected int startTimeIndex() {
+		return 1 * PAGE_SIZE + 2 * DOUBLE_WORD;
+	}
+
+	@Override
+	protected int finishTimeIndex() {
+		return 1 * PAGE_SIZE + 1 * DOUBLE_WORD;
+	}
+
+	@Override
+	protected int checkTimeIndex() {
+		return 1 * PAGE_SIZE + 3 * DOUBLE_WORD;
+	}
+
+	@Override
+	protected int nbPunchesIndex() {
+		return 1 * PAGE_SIZE + 2;
+	}
+
+	@Override
+	protected SiPunch[] extractPunches() {
+		SiPunch[] punches = new SiPunch[rawNbPunches()];
+		int punchesStart = 8 * PAGE_SIZE;
+		for (int i = 0; i < punches.length; i++) {
+			int punchIndex = punchesStart + (DOUBLE_WORD * i);
+			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
+		}
+		return punches;
+	}
+	
 	@Override
 	public String getSiSeries() {
 		return "SiCard 6";

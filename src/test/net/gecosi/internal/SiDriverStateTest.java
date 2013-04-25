@@ -136,9 +136,9 @@ public class SiDriverStateTest {
 
 	@Test
 	public void RETRIEVE_SICARD_6_DATA() throws Exception {
-		queue.add(SiMessageFixtures.mock_sicard6_data);
-		queue.add(SiMessageFixtures.mock_sicard6_data);
-		queue.add(SiMessageFixtures.mock_sicard6_data);
+		queue.add(SiMessageFixtures.sicard6_b0_data);
+		queue.add(SiMessageFixtures.sicard6_b6_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_6_DATA.retrieve(queue, writer, siHandler);
 
 		verify(writer).write(SiMessage.read_sicard_6_b0);

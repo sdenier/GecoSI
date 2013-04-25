@@ -11,7 +11,7 @@ import net.gecosi.internal.SiMessage;
  * @since Apr 10, 2013
  *
  */
-public class Si8PlusDataFrame extends SiAbstractDataFrame {
+public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 
 	public static final int PAGE_SIZE = 4;
 	
@@ -38,13 +38,9 @@ public class Si8PlusDataFrame extends SiAbstractDataFrame {
 	private SiPlusSeries siSeries;
 
 	public Si8PlusDataFrame(SiMessage[] dataMessages) {
-		this.dataFrame	= extractDataFrame(dataMessages);
-		this.siSeries	= extractSiSeries();
-		this.siNumber	= extractSiNumber();
-		this.startTime	= extractStartTime();
-		this.finishTime	= extractFinishTime();
-		this.checkTime	= extractCheckTime();
-		this.punches	= extractPunches();
+		super(dataMessages);
+		this.siSeries = extractSiSeries();
+		initializeDataFields();
 	}
 
 	protected SiPlusSeries extractSiSeries() {
@@ -60,26 +56,32 @@ public class Si8PlusDataFrame extends SiAbstractDataFrame {
 		}
 	}
 	
-	protected String extractSiNumber() {
-		return Integer.toString(block3At(SINUMBER_PAGE + 1));
+	@Override
+	protected int siNumberIndex() {
+		return SINUMBER_PAGE + 1;
 	}
 
-	protected long extractStartTime() {
-		return extract24HourTime(3 * PAGE_SIZE);
+	@Override
+	protected int startTimeIndex() {
+		return 3 * PAGE_SIZE;
 	}
 
-	protected long extractFinishTime() {
-		return extract24HourTime(4 * PAGE_SIZE);
+	@Override
+	protected int finishTimeIndex() {
+		return 4 * PAGE_SIZE;
 	}
 
-	protected long extractCheckTime() {
-		return extract24HourTime(2 * PAGE_SIZE);
+	@Override
+	protected int checkTimeIndex() {
+		return 2 * PAGE_SIZE;
 	}
 
-	protected int rawNbPunches() {
-		return byteAt(5 * PAGE_SIZE + 2);
+	@Override
+	protected int nbPunchesIndex() {
+		return 5 * PAGE_SIZE + 2;
 	}
 
+	@Override
 	protected SiPunch[] extractPunches() {
 		SiPunch[] punches = new SiPunch[rawNbPunches()];
 		int punchesStart = siSeries.punchesPageStartIndex();
@@ -88,22 +90,6 @@ public class Si8PlusDataFrame extends SiAbstractDataFrame {
 			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
 		}
 		return punches;
-	}
-
-	protected int extractCode(int punchIndex) {
-		int codeHigh = (byteAt(punchIndex) & 192) << 2;
-		int code = codeHigh + byteAt(punchIndex + 1); // TODO check/test
-		return code;
-	}
-	
-	protected long extract24HourTime(int pageStart) {
-		int pmFlag = byteAt(pageStart) & 1;
-		return shiftTime(timestampAt(pageStart + 2), TWELVE_HOURS * pmFlag);
-	}
-
-	@Override
-	public SiDataFrame startingAt(long zerohour) {
-		return this;
 	}
 
 	@Override
