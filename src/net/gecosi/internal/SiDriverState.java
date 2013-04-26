@@ -102,7 +102,7 @@ public enum SiDriverState {
 			case SiMessage.SI_CARD_5_DETECTED:
 				return RETRIEVE_SICARD_5_DATA.retrieve(queue, writer, siHandler);
 			case SiMessage.SI_CARD_6_PLUS_DETECTED:
-				return RETRIEVE_SICARD_6_DATA.retrieve(queue, writer, siHandler);
+				return dispatchSicard6(queue, writer, siHandler);
 			case SiMessage.SI_CARD_8_PLUS_DETECTED:
 				return dispatchSicard8Plus(message, queue, writer, siHandler);
 			case SiMessage.BEEP:
@@ -114,6 +114,15 @@ public enum SiDriverState {
 				GecoSILogger.debug("Unexpected message " + message.toString());
 			}
 			return DISPATCH_READY;
+		}
+
+		private SiDriverState dispatchSicard6(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			if( sicard6_192PunchesMode() ) {
+				return RETRIEVE_SICARD_6_8BLOCKS_DATA.retrieve(queue, writer, siHandler);
+			} else {
+				return RETRIEVE_SICARD_6_DATA.retrieve(queue, writer, siHandler);
+			}
 		}
 
 		private SiDriverState dispatchSicard8Plus(SiMessage message, SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
@@ -154,6 +163,31 @@ public enum SiDriverState {
 				return ACK_READ.send(writer, siHandler);
 			} catch (TimeoutException e) {
 				return errorFallback(siHandler, "Timeout on retrieving SiCard 6 data");
+			} catch (InvalidMessage e) {
+				return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
+			}
+		}
+	},
+
+	RETRIEVE_SICARD_6_8BLOCKS_DATA {
+		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			try {
+				GecoSILogger.stateChanged(name());
+				final int SI6_8BLOCKS_SIZE = 8;
+				SiMessage[] dataMessages = new SiMessage[SI6_8BLOCKS_SIZE];
+				writer.write(SiMessage.read_sicard_6_b8);
+				for (int i = 0; i < dataMessages.length; i++) {
+					dataMessages[i] = pollAnswer(queue, SiMessage.GET_SI_CARD_6_BN);
+				}
+				SiMessage[] reorderedMessages = new SiMessage[SI6_8BLOCKS_SIZE];
+				System.arraycopy(dataMessages, 0, reorderedMessages, 0, 2);
+				System.arraycopy(dataMessages, 6, reorderedMessages, 2, 2);
+				System.arraycopy(dataMessages, 2, reorderedMessages, 4, 4);
+				siHandler.notify(new Si6DataFrame(reorderedMessages));
+				return ACK_READ.send(writer, siHandler);
+			} catch (TimeoutException e) {
+				return errorFallback(siHandler, "Timeout on retrieving SiCard 6 (192p) data");
 			} catch (InvalidMessage e) {
 				return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
 			}
@@ -226,6 +260,10 @@ public enum SiDriverState {
 
 	public static boolean sicard6_192PunchesMode() {
 		return si6_192PunchesMode;
+	}
+
+	public static void setSicard6_192PunchesMode(boolean flag) {
+		si6_192PunchesMode = flag;
 	}
 	
 	public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {

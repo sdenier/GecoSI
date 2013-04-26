@@ -49,6 +49,7 @@ public class SiDriverStateTest {
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		queue = new SiMessageQueue(10, 1);
+		SiDriverState.setSicard6_192PunchesMode(false);
 	}
 	
 	@Test
@@ -163,6 +164,15 @@ public class SiDriverStateTest {
 	}
 
 	@Test
+	public void DISPATCH_READY_dispatchesSiCard6In192PunchesMode() throws Exception {
+		SiDriverState.setSicard6_192PunchesMode(true);
+		
+		queue.add(SiMessageFixtures.sicard6_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(writer).write(SiMessage.read_sicard_6_b8);
+	}
+
+	@Test
 	public void RETRIEVE_SICARD_6_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard6_b0_data);
 		queue.add(SiMessageFixtures.sicard6_b6_data);
@@ -172,6 +182,24 @@ public class SiDriverStateTest {
 		verify(writer).write(SiMessage.read_sicard_6_b0);
 		verify(writer).write(SiMessage.read_sicard_6_b6);
 		verify(writer).write(SiMessage.read_sicard_6_b7);
+		verify(writer).write(SiMessage.ack_sequence);
+		verify(siHandler).notify(any(Si6DataFrame.class));
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
+	}
+
+	@Test
+	public void RETRIEVE_SICARD_6_8BLOCKS_DATA() throws Exception {
+		queue.add(SiMessageFixtures.sicard6_b0_data);
+		queue.add(SiMessageFixtures.sicard6_b0_data);
+		queue.add(SiMessageFixtures.sicard6_b6_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
+		queue.add(SiMessageFixtures.sicard6_b7_data);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_6_8BLOCKS_DATA.retrieve(queue, writer, siHandler);
+
+		verify(writer).write(SiMessage.read_sicard_6_b8);
 		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si6DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));

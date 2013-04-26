@@ -92,6 +92,13 @@ public class CRCCalculatorTest {
 	}
 
 	@Test
+	public void testReadSiCard6B8() {
+		int expected_crc = 0x4E0A;
+		byte[] sample = new byte[] { (byte) 0xE1, 0x01, 0x08 };
+		assertThat(CRCCalculator.crc(sample), equalTo(expected_crc));
+	}
+
+	@Test
 	public void testReadSiCard8B0() {
 		int expected_crc = 0xE209;
 		byte[] sample = new byte[] { (byte) 0xEF, 0x01, 0x00 };

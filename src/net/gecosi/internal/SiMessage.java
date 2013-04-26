@@ -115,7 +115,7 @@ public class SiMessage {
 	 * Card Readout instructions
 	 */
 	public static final byte GET_SI_CARD_5 = (byte) 0xB1;
-	public static final byte GET_SI_CARD_6_PLUS_BN = (byte) 0xE1;
+	public static final byte GET_SI_CARD_6_BN = (byte) 0xE1;
 	public static final byte GET_SI_CARD_8_PLUS_BN = (byte) 0xEF;
 
 	/*
@@ -148,17 +148,21 @@ public class SiMessage {
 	});
 
 	public static final SiMessage read_sicard_6_b0 = new SiMessage(new byte[] {
-		STX, GET_SI_CARD_6_PLUS_BN, 0x01, 0x00, 0x46, 0x0A, ETX
+		STX, GET_SI_CARD_6_BN, 0x01, 0x00, 0x46, 0x0A, ETX
 	});
 
 	public static final SiMessage read_sicard_6_b6 = new SiMessage(new byte[] {
-		STX, GET_SI_CARD_6_PLUS_BN, 0x01, 0x06, 0x40, 0x0A, ETX
+		STX, GET_SI_CARD_6_BN, 0x01, 0x06, 0x40, 0x0A, ETX
 	});
 
 	public static final SiMessage read_sicard_6_b7 = new SiMessage(new byte[] {
-		STX, GET_SI_CARD_6_PLUS_BN, 0x01, 0x07, 0x41, 0x0A, ETX
+		STX, GET_SI_CARD_6_BN, 0x01, 0x07, 0x41, 0x0A, ETX
 	});
 
+	public static final SiMessage read_sicard_6_b8 = new SiMessage(new byte[] {
+		STX, GET_SI_CARD_6_BN, 0x01, 0x08, 0x4E, 0x0A, ETX
+	});
+	
 	public static final SiMessage read_sicard_8_plus_b0 = new SiMessage(new byte[] {
 		STX, GET_SI_CARD_8_PLUS_BN, 0x01, 0x00, (byte) 0xE2, 0x09, ETX	
 	});

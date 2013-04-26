@@ -109,8 +109,9 @@ public class SiDriverTest {
 
 	@Test
 	public void readSiCard6_192Punches() throws Exception {
-		siPort = new MockCommPort(new SiMessage[]{ 	startup_answer, ok_ext_protocol_answer, si6_192_punches_answer,
-													sicard6_detected, sicard6_b0_data, sicard6_b6_data, sicard6_b7_data, sicard5_removed });
+		siPort = new MockCommPort(new SiMessage[]{ 	startup_answer, ok_ext_protocol_answer, si6_192_punches_answer, sicard6_detected,
+													sicard6_b0_data, sicard6_b0_data, sicard6_b6_data, sicard6_b7_data, sicard6_b7_data,
+													sicard6_b7_data, sicard6_b7_data, sicard6_b7_data, sicard5_removed });
 		testRunDriver(new SiDriver(siPort, siHandler));
 
 		verify(siHandler).notify(any(Si6DataFrame.class));
