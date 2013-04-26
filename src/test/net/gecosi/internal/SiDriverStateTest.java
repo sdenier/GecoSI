@@ -189,14 +189,14 @@ public class SiDriverStateTest {
 
 	@Test
 	public void RETRIEVE_SICARD_6_8BLOCKS_DATA() throws Exception {
-		queue.add(SiMessageFixtures.sicard6_b0_data);
-		queue.add(SiMessageFixtures.sicard6_b0_data);
-		queue.add(SiMessageFixtures.sicard6_b6_data);
-		queue.add(SiMessageFixtures.sicard6_b7_data);
-		queue.add(SiMessageFixtures.sicard6_b7_data);
-		queue.add(SiMessageFixtures.sicard6_b7_data);
-		queue.add(SiMessageFixtures.sicard6_b7_data);
-		queue.add(SiMessageFixtures.sicard6_b7_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b0_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b1_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b2_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b3_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b4_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b5_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b6_data);
+		queue.add(SiMessageFixtures.sicard6_192p_b7_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_6_8BLOCKS_DATA.retrieve(queue, writer, siHandler);
 
 		verify(writer).write(SiMessage.read_sicard_6_b8);

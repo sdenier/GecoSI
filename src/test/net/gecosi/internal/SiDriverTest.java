@@ -3,6 +3,8 @@
  */
 package test.net.gecosi.internal;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -15,9 +17,14 @@ import static test.net.gecosi.SiMessageFixtures.si6_64_punches_answer;
 import static test.net.gecosi.SiMessageFixtures.sicard5_data;
 import static test.net.gecosi.SiMessageFixtures.sicard5_detected;
 import static test.net.gecosi.SiMessageFixtures.sicard5_removed;
-import static test.net.gecosi.SiMessageFixtures.sicard6_b0_data;
-import static test.net.gecosi.SiMessageFixtures.sicard6_b6_data;
-import static test.net.gecosi.SiMessageFixtures.sicard6_b7_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b0_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b1_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b2_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b3_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b4_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b5_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b6_data;
+import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b7_data;
 import static test.net.gecosi.SiMessageFixtures.sicard6_detected;
 import static test.net.gecosi.SiMessageFixtures.startup_answer;
 import net.gecosi.CommStatus;
@@ -30,6 +37,7 @@ import net.gecosi.internal.SiPort;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -110,11 +118,17 @@ public class SiDriverTest {
 	@Test
 	public void readSiCard6_192Punches() throws Exception {
 		siPort = new MockCommPort(new SiMessage[]{ 	startup_answer, ok_ext_protocol_answer, si6_192_punches_answer, sicard6_detected,
-													sicard6_b0_data, sicard6_b0_data, sicard6_b6_data, sicard6_b7_data, sicard6_b7_data,
-													sicard6_b7_data, sicard6_b7_data, sicard6_b7_data, sicard5_removed });
+													sicard6_192p_b0_data, sicard6_192p_b1_data, sicard6_192p_b2_data, 
+													sicard6_192p_b3_data, sicard6_192p_b4_data, sicard6_192p_b5_data, 
+													sicard6_192p_b6_data, sicard6_192p_b7_data, sicard5_removed });
 		testRunDriver(new SiDriver(siPort, siHandler));
+		ArgumentCaptor<Si6DataFrame> si6Arg = ArgumentCaptor.forClass(Si6DataFrame.class);
+		verify(siHandler).notify(si6Arg.capture());
+		Si6DataFrame si6Data = si6Arg.getValue();
 
-		verify(siHandler).notify(any(Si6DataFrame.class));
+		assertThat(si6Data.getNbPunches(), equalTo(101));
+		assertThat(si6Data.getPunches()[0].code(), equalTo(31));
+		assertThat(si6Data.getPunches()[100].code(), equalTo(634));
 	}
 
 }
