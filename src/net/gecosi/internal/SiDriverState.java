@@ -129,8 +129,8 @@ public enum SiDriverState {
 	RETRIEVE_SICARD_5_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			GecoSILogger.stateChanged(RETRIEVE_SICARD_5_DATA.name());
 			try {
+				GecoSILogger.stateChanged(name());
 				writer.write(SiMessage.read_sicard_5);
 				SiMessage dataMessage = pollAnswer(queue, SiMessage.GET_SI_CARD_5);
 				siHandler.notify(new Si5DataFrame(dataMessage));
@@ -146,8 +146,8 @@ public enum SiDriverState {
 	RETRIEVE_SICARD_6_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			GecoSILogger.stateChanged(RETRIEVE_SICARD_6_DATA.name());
 			try {
+				GecoSILogger.stateChanged(name());
 				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
 						SiMessage.read_sicard_6_b0, SiMessage.read_sicard_6_b6, SiMessage.read_sicard_6_b7 });
 				siHandler.notify(new Si6DataFrame(dataMessages));
@@ -163,8 +163,8 @@ public enum SiDriverState {
 	RETRIEVE_SICARD_8_9_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			GecoSILogger.stateChanged(RETRIEVE_SICARD_8_9_DATA.name());
 			try {
+				GecoSILogger.stateChanged(name());
 				SiMessage[] dataMessages = retrieveDataMessages(queue, writer, new SiMessage[] {
 						SiMessage.read_sicard_8_plus_b0, SiMessage.read_sicard_8_plus_b1 });
 				siHandler.notify(new Si8PlusDataFrame(dataMessages));
@@ -180,8 +180,8 @@ public enum SiDriverState {
 	RETRIEVE_SICARD_10_PLUS_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			GecoSILogger.stateChanged(RETRIEVE_SICARD_10_PLUS_DATA.name());
 			try {
+				GecoSILogger.stateChanged(name());
 				final int MOST_RELEVANT_BLOCKS = 5; // Blocks 0, 4..7
 				SiMessage[] dataMessages = new SiMessage[MOST_RELEVANT_BLOCKS];
 				writer.write(SiMessage.read_sicard_10_plus_b8);
