@@ -61,7 +61,7 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 	
 	protected int extractCode(int punchIndex) {
 		int codeHigh = (byteAt(punchIndex) & 192) << 2;
-		int code = codeHigh + byteAt(punchIndex + 1); // TODO check/test
+		int code = codeHigh + byteAt(punchIndex + 1);
 		return code;
 	}
 

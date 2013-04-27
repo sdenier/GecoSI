@@ -24,31 +24,56 @@ public class GecoSILogger {
 		@Override
 		public void write(char[] cbuf, int off, int len) throws IOException {}
 	}
+
+	public static class OutStreamWriter extends Writer {
+		@Override
+		public void close() throws IOException {}
+		@Override
+		public void flush() throws IOException {}
+		@Override
+		public void write(char[] cbuf, int off, int len) throws IOException {
+			for (int i = off; i < off + len; i++) {
+				System.out.print(cbuf[i]);
+			}
+		}
+	}
 	
 	private static Writer logger;
 	
-	private static boolean LOGGING_ENABLED = true;
-	
-	private static Writer logger() {
-		if( logger == null ) {
-			if( LOGGING_ENABLED ){
-				try {
-					logger = new BufferedWriter(new FileWriter("gecosi.log", true));
-				} catch (IOException e) {
-					e.printStackTrace();
-					logger = new NullWriter();
-				}			
-			} else {
-				logger = new NullWriter();
-			}
+	static {
+		String logProp = System.getProperty("GECOSI_LOG", "FILE");
+		if( logProp.equals("FILE") ){
+			setupFileLogger();
 		}
-		return logger;
+		else if( logProp.equals("NONE") ){
+			setupNullLogger();
+		}
+		else if( logProp.equals("OUTSTREAM") ){
+			setupOutStreamLogger();
+		}
+	}
+
+	public static void setupFileLogger() {
+		try {
+			logger = new BufferedWriter(new FileWriter("gecosi.log", true));
+		} catch (IOException e) {
+			e.printStackTrace();
+			setupOutStreamLogger();
+		}
+	}
+
+	public static void setupNullLogger() {
+		logger = new NullWriter();
+	}
+
+	public static void setupOutStreamLogger() {
+		logger = new OutStreamWriter();
 	}
 	
 	public static void log(String header, String message) {
 		try {
-			logger().write(String.format("%s %s\n", header, message));
-			logger().flush();
+			logger.write(String.format("%s %s\n", header, message));
+			logger.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
@@ -80,7 +105,7 @@ public class GecoSILogger {
 	
 	public static void close() {
 		try {
-			logger().close();
+			logger.close();
 			logger = null;
 		} catch (IOException e) {
 			e.printStackTrace();
