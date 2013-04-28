@@ -18,10 +18,31 @@ Specifications
 - Support for SI5/6/6*/8/9/10/11
 - Later: support for memory backup readout
 
-Usage
-=====
+Usage (Library)
+===============
 
 - `SiHandler#connect` is the entry point (see `#main` for a basic client)
 - Client should provide a `SiListener` implementation to `SiHandler`
 - `SiListener` is notified with station status (`CommStatus`) and SiCard dataframes (`SiDataFrame` and `SiPunch`)
 - That's all you need to know!
+
+Usage (CLI)
+===========
+
+- `SiHandler` can be run from the command line with `java net.gecosi.SiHandler`
+- It provides a simple handler which prints events, status, and sicard data as they are read
+- It takes as a parameter the serial port to connect to
+- Alternatively, it can take '--file <logfilename>' to re-read a log file created by GecoSI
+
+Logging
+=======
+
+Logging can be setup with the system property `GECOSI_LOG`
+
+```
+  java -DGECOSI_LOG=OUTSTREAM net.gecosi.SiHandler COM8
+```
+
+- `GECOSI_LOG=FILE` - log to file gecosi.log (default setup)
+- `GECOSI_LOG=OUTSTREAM` - log to console
+- `GECOSI_LOG=NONE` - log nothing
