@@ -15,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import net.gecosi.dataframe.SiDataFrame;
 import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiDriver;
+import net.gecosi.logbridge.LogFilePort;
 import net.gecosi.rxtxbridge.RxtxPort;
 
 /**
@@ -25,27 +26,23 @@ import net.gecosi.rxtxbridge.RxtxPort;
 public class SiHandler implements Runnable {
 
 	private ArrayBlockingQueue<SiDataFrame> dataQueue;
-	private Thread thread;
-	private SiDriver driver;
+
 	private SiListener siListener;
+
 	private long zerohour;
-	
-	public static void main(String[] args) {
-		try {
-			new SiHandler(new SiListener() {
-				public void handleEcard(SiDataFrame dataFrame) {
-					dataFrame.printString();
-				}
-				public void notify(CommStatus status) {
-					System.out.println("Status -> " + status);					
-				}
-				public void notify(CommStatus errorStatus, String errorMessage) {
-					System.out.println("Error -> " + errorStatus + " " + errorMessage);					
-				}
-			}).connect("/dev/tty.SLAB_USBtoUART");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+	private SiDriver driver;
+
+	private Thread thread;
+
+
+	public SiHandler(SiListener siListener) {
+		this.dataQueue = new ArrayBlockingQueue<SiDataFrame>(5);
+		this.siListener = siListener;
+	}
+
+	public void setZeroHour(long zerohour) {
+		this.zerohour = zerohour;
 	}
 
 	public void connect(String portname) throws IOException, TooManyListenersException {
@@ -67,31 +64,32 @@ public class SiHandler implements Runnable {
 		}
 	}
 
-	public SiHandler(SiListener siListener) {
-		this.dataQueue = new ArrayBlockingQueue<SiDataFrame>(5);
-		this.siListener = siListener;
+	public void readLog(String logFilename) throws IOException {
+		try {
+			GecoSILogger.setupOutStreamLogger();
+			start();
+			driver = new SiDriver(new LogFilePort(logFilename), this).start();
+		} catch (TooManyListenersException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public void setZeroHour(long zerohour) {
-		this.zerohour = zerohour;		
-	}
-	
+
 	public void start() {
 		thread = new Thread(this);
 		thread.start();
 	}
-	
+
 	public Thread stop() {
 		driver.interrupt();
 		thread.interrupt();
 		GecoSILogger.close();
 		return thread;
 	}
-	
+
 	public boolean isAlive() {
 		return thread != null && thread.isAlive();
 	}
-	
+
 	public void notify(SiDataFrame data) {
 		data.startingAt(zerohour);
 		dataQueue.offer(data); // TODO check true
@@ -106,7 +104,7 @@ public class SiHandler implements Runnable {
 		GecoSILogger.error(errorMessage);
 		siListener.notify(errorStatus, errorMessage);
 	}
-	
+
 	public void run() {
 		try {
 			SiDataFrame dataFrame;
@@ -116,6 +114,48 @@ public class SiHandler implements Runnable {
 		} catch (InterruptedException e) {
 			dataQueue.clear();
 		}
+	}
+
+	public static void main(String[] args) {
+		if( args.length == 0 ){
+			printUsage();
+			System.exit(0);
+		}
+
+		SiHandler handler = new SiHandler(new SiListener() {
+			public void handleEcard(SiDataFrame dataFrame) {
+				dataFrame.printString();
+			}
+			public void notify(CommStatus status) {
+				System.out.println("Status -> " + status);
+			}
+			public void notify(CommStatus errorStatus, String errorMessage) {
+				System.out.println("Error -> " + errorStatus + " " + errorMessage);
+			}
+		});
+
+		if( args.length == 1 ){
+			try {
+				handler.connect(args[0]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else if( args.length == 2 && args[0].equals("--file") ){
+			try {
+				handler.readLog(args[1]);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("Unknown command line option");
+			printUsage();
+			System.exit(1);
+		}
+	}
+
+	private static void printUsage() {
+		System.out.println("Usage: java net.gecosi.SiHandler <serial portname> | --file <log filename>");
 	}
 
 }
