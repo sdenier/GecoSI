@@ -58,11 +58,11 @@ public class Si10DataFrameTest {
 	public void getPunches() {
 		SiPunch[] punches = subject7773810().getPunches();
 		assertThat(punches[0].code(), equalTo(42));
-		assertThat(punches[0].timestamp(), equalTo(45706000L));
+		assertThat(punches[0].timestamp(), equalTo(218506000L));
 		assertThat(punches[1].code(), equalTo(38));
-		assertThat(punches[1].timestamp(), equalTo(45713000L));
+		assertThat(punches[1].timestamp(), equalTo(218513000L));
 		assertThat(punches[2].code(), equalTo(32));
-		assertThat(punches[2].timestamp(), equalTo(48397000L));
+		assertThat(punches[2].timestamp(), equalTo(1603597000L));
 	}
 	
 	private Si8PlusDataFrame subject7773810() {

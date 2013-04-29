@@ -87,7 +87,7 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 		int punchesStart = siSeries.punchesPageStartIndex();
 		for (int i = 0; i < punches.length; i++) {
 			int punchIndex = (punchesStart + i) * PAGE_SIZE;
-			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
+			punches[i] = new SiPunch(extractCode(punchIndex), extractFullTime(punchIndex));
 		}
 		return punches;
 	}

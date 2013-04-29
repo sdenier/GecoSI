@@ -3,6 +3,10 @@
  */
 package net.gecosi.dataframe;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 
 /**
  * @author Simon Denier
@@ -21,6 +25,13 @@ public abstract class AbstractDataFrame implements SiDataFrame {
 
 	protected SiPunch[] punches;
 
+	private static final SimpleDateFormat TIME_FORMATTER;
+
+	static {
+		TIME_FORMATTER = new SimpleDateFormat("H:mm:ss");
+		TIME_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+	}
+	
 	@Override
 	public String getSiNumber() {
 		return siNumber;
@@ -55,8 +66,7 @@ public abstract class AbstractDataFrame implements SiDataFrame {
 		if( timestamp == NO_TIME ) {
 			return "no time";
 		} else {
-			long seconds = timestamp / 1000;
-			return String.format("%d:%02d:%02d", seconds/3600, (seconds%3600)/60, (seconds%60));
+			return TIME_FORMATTER.format(new Date(timestamp));
 		}
 	}
 

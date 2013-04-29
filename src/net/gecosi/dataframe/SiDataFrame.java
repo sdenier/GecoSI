@@ -11,7 +11,7 @@ package net.gecosi.dataframe;
  */
 public interface SiDataFrame {
 
-	public static long NO_TIME = -1;
+	public final static long NO_TIME = -1;
 
 	public SiDataFrame startingAt(long zerohour);
 

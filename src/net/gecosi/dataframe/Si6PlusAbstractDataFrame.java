@@ -39,24 +39,34 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 	}
 
 	protected long extractStartTime() {
-		return extract24HourTime(startTimeIndex());
+		return extractFullTime(startTimeIndex());
 	}
 
 	protected long extractFinishTime() {
-		return extract24HourTime(finishTimeIndex());
+		return extractFullTime(finishTimeIndex());
 	}
 
 	protected long extractCheckTime() {
-		return extract24HourTime(checkTimeIndex());
+		return extractFullTime(checkTimeIndex());
 	}
 
 	protected int rawNbPunches() {
 		return byteAt(nbPunchesIndex());
 	}
 
-	protected long extract24HourTime(int pageStart) {
-		int pmFlag = byteAt(pageStart) & 1;
-		return shiftTime(timestampAt(pageStart + 2), TWELVE_HOURS * pmFlag);
+	protected long extractFullTime(int pageStart) {
+		int tdByte = byteAt(pageStart);
+		int weekCounter = (tdByte & 48) >> 4;
+		int numDay = (tdByte & 14) >> 1;
+		int pmFlag = tdByte & 1;
+		return computeFullTime(weekCounter, numDay, pmFlag, timestampAt(pageStart + 2));
+	}
+	
+	public long computeFullTime(int relativeWeek, int numDay, int pmFlag, long twelveHoursTime) {
+		if( twelveHoursTime == NO_SI_TIME ) {
+			return NO_TIME;
+		}
+		return relativeWeek * ONE_WEEK + numDay * ONE_DAY + pmFlag * TWELVE_HOURS + twelveHoursTime;
 	}
 	
 	protected int extractCode(int punchIndex) {

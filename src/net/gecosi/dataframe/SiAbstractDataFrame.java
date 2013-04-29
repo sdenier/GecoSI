@@ -11,10 +11,14 @@ package net.gecosi.dataframe;
  */
 public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 
-	protected static long NO_SI_TIME = 1000L * 0xEEEE;
+	protected final static long NO_SI_TIME = 1000L * 0xEEEE;
 	
-	protected static long TWELVE_HOURS = 1000L * 12 * 3600;
+	protected final static long TWELVE_HOURS = 1000L * 12 * 3600;
 
+	protected final static long ONE_DAY = 2 * TWELVE_HOURS;
+
+	protected final static long ONE_WEEK = 7 * ONE_DAY;
+	
 	protected byte[] dataFrame;
 	
 	protected int byteAt(int i) {
@@ -31,10 +35,6 @@ public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 	
 	protected long timestampAt(int i) {
 		return 1000L * wordAt(i);
-	}
-
-	protected long shiftTime(long time, long zeroHourShift) {
-		return ( time == NO_SI_TIME ) ? NO_TIME : time + zeroHourShift;
 	}
 	
 }

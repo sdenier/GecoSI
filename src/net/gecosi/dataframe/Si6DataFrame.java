@@ -59,7 +59,7 @@ public class Si6DataFrame extends Si6PlusAbstractDataFrame {
 		int punchesStart = punchesStartIndex();
 		for (int i = 0; i < punches.length; i++) {
 			int punchIndex = punchesStart + (DOUBLE_WORD * i);
-			punches[i] = new SiPunch(extractCode(punchIndex), extract24HourTime(punchIndex));
+			punches[i] = new SiPunch(extractCode(punchIndex), extractFullTime(punchIndex));
 		}
 		return punches;
 	}
