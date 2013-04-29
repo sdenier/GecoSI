@@ -27,33 +27,54 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 
 	@Override
 	public SiDataFrame startingAt(long zerohour) {
-		long zeroHourShift = computeZeroHourShift(rawStartTime(), zerohour);
-		startTime = shiftTime(rawStartTime(), zeroHourShift);
-		finishTime = shiftTime(rawFinishTime(), zeroHourShift);
-		checkTime = shiftTime(rawCheckTime(), zeroHourShift);
-		punches = computeShiftedPunches(zeroHourShift);
+		startTime = advanceTimePast(rawStartTime(), zerohour);
+		checkTime = advanceTimePast(rawCheckTime(), zerohour);
+		// shift punch times after start
+		punches = computeShiftedPunches(startTime);
+		// at least, advance finish past start time
+		finishTime = advanceTimePast(rawFinishTime(), zerohour);
+		// advance finish past last timed punch if available
+		SiPunch lastTimedPunch = punches[nbTimedPunches(punches) - 1];
+		finishTime = advanceTimePast(finishTime, lastTimedPunch.timestamp());
 		return this;
 	}
 	
-	private long computeZeroHourShift(long reftime, long zerohour) {
-		long shift = 0;
-		while( reftime + shift < zerohour ){
-			shift += TWELVE_HOURS;
+	public long advanceTimePast(long twelveHoursTime, long refTime) {
+		if( twelveHoursTime == NO_SI_TIME ) {
+			return NO_TIME;
 		}
-		return shift;
+		if( refTime == NO_TIME ) {
+			return twelveHoursTime;
+		}
+		long shiftedTime = twelveHoursTime;
+		// advance time until it is at least less than one hour before refTime
+		// accomodates for drifting clocks or even controls with different daylight savings mode
+		long baseTime = refTime - 3600000; 
+		while( shiftedTime < baseTime){
+			shiftedTime += TWELVE_HOURS;
+		}
+		return shiftedTime;
 	}
-
-	private SiPunch[] computeShiftedPunches(long zeroHourShift) {
+	
+	private SiPunch[] computeShiftedPunches(long startTime) {
 		int nbPunches = rawNbPunches();
 		SiPunch[] punches = new SiPunch[nbPunches];
-		int nbTimedPunches = Math.min(nbPunches, SI5_TIMED_PUNCHES);
+		int nbTimedPunches = nbTimedPunches(punches);
+		long refTime = startTime;
 		for (int i = 0; i < nbTimedPunches; i++) {
-			punches[i] = new SiPunch(getPunchCode(i), shiftTime(getPunchTime(i), zeroHourShift));
+			// shift each punch time after the previous
+			long punchTime = advanceTimePast(getPunchTime(i), refTime);
+			punches[i] = new SiPunch(getPunchCode(i), punchTime);
+			refTime = punchTime;
 		}
 		for (int i = 0; i < nbPunches - SI5_TIMED_PUNCHES; i++) {
 			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
 		}
 		return punches;
+	}
+
+	private int nbTimedPunches(SiPunch[] punches) {
+		return Math.min(punches.length, SI5_TIMED_PUNCHES);
 	}
 
 	protected String extractSiNumber() {
