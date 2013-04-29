@@ -11,7 +11,9 @@ package net.gecosi.dataframe;
  */
 public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 
-	public static long TWELVE_HOURS = 1000L * 12 * 3600;
+	protected static long NO_SI_TIME = 1000L * 0xEEEE;
+	
+	protected static long TWELVE_HOURS = 1000L * 12 * 3600;
 
 	protected byte[] dataFrame;
 	
@@ -32,7 +34,7 @@ public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 	}
 
 	protected long shiftTime(long time, long zeroHourShift) {
-		return ( time == NO_TIME ) ? NO_TIME : time + zeroHourShift;
+		return ( time == NO_SI_TIME ) ? NO_TIME : time + zeroHourShift;
 	}
 	
 }
