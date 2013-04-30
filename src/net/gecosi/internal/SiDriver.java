@@ -91,6 +91,7 @@ public class SiDriver implements Runnable {
 	private void stop() {
 		siPort.close();
 		siHandler.notify(CommStatus.OFF);
+		GecoSILogger.close();
 	}
 
 }

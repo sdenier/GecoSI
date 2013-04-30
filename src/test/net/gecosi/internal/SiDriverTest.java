@@ -31,6 +31,7 @@ import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
 import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.Si6DataFrame;
+import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiDriver;
 import net.gecosi.internal.SiMessage;
 import net.gecosi.internal.SiPort;
@@ -57,6 +58,7 @@ public class SiDriverTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
+		GecoSILogger.open();
 	}
 
 	private void testRunDriver(SiDriver driver) throws InterruptedException {

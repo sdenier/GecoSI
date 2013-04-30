@@ -18,6 +18,7 @@ import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.Si6DataFrame;
 import net.gecosi.dataframe.Si8PlusDataFrame;
 import net.gecosi.internal.CommWriter;
+import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.InvalidMessage;
 import net.gecosi.internal.SiDriverState;
 import net.gecosi.internal.SiMessage;
@@ -50,6 +51,7 @@ public class SiDriverStateTest {
 		MockitoAnnotations.initMocks(this);
 		queue = new SiMessageQueue(10, 1);
 		SiDriverState.setSicard6_192PunchesMode(false);
+		GecoSILogger.open();
 	}
 	
 	@Test

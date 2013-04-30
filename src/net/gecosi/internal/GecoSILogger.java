@@ -40,34 +40,42 @@ public class GecoSILogger {
 	
 	private static Writer logger;
 	
-	static {
+	public static void open() {
+		if( logger != null ) {
+			close();
+		}
 		String logProp = System.getProperty("GECOSI_LOG", "FILE");
 		if( logProp.equals("FILE") ){
-			setupFileLogger();
+			openFileLogger();
 		}
 		else if( logProp.equals("NONE") ){
-			setupNullLogger();
+			openNullLogger();
 		}
 		else if( logProp.equals("OUTSTREAM") ){
-			setupOutStreamLogger();
+			openOutStreamLogger();
 		}
 	}
 
-	public static void setupFileLogger() {
+	public static void openFileLogger() {
 		try {
 			logger = new BufferedWriter(new FileWriter("gecosi.log", true));
 		} catch (IOException e) {
 			e.printStackTrace();
-			setupOutStreamLogger();
+			openOutStreamLogger();
 		}
 	}
 
-	public static void setupNullLogger() {
+	public static void openNullLogger() {
 		logger = new NullWriter();
 	}
 
-	public static void setupOutStreamLogger() {
+	public static void openOutStreamLogger() {
 		logger = new OutStreamWriter();
+	}
+	
+	public static void open(String header) {
+		open();
+		log(header, "");
 	}
 	
 	public static void log(String header, String message) {

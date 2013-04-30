@@ -51,7 +51,7 @@ public class SiHandler implements Runnable {
 			if( portId.isCurrentlyOwned() ) {
 				siListener.notify(CommStatus.FATAL_ERROR, "Port owned by other app");
 			} else {
-				GecoSILogger.log("######", "");
+				GecoSILogger.open("######");
 				GecoSILogger.logTime("Start " + portname);
 				start();
 				SerialPort port = (SerialPort) portId.open("GecoSI", 2000);
@@ -66,7 +66,7 @@ public class SiHandler implements Runnable {
 
 	public void readLog(String logFilename) throws IOException {
 		try {
-			GecoSILogger.setupOutStreamLogger();
+			GecoSILogger.openOutStreamLogger();
 			start();
 			driver = new SiDriver(new LogFilePort(logFilename), this).start();
 		} catch (TooManyListenersException e) {
@@ -82,7 +82,6 @@ public class SiHandler implements Runnable {
 	public Thread stop() {
 		driver.interrupt();
 		thread.interrupt();
-		GecoSILogger.close();
 		return thread;
 	}
 
