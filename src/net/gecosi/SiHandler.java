@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.util.TooManyListenersException;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import net.gecosi.adapter.logfile.LogFilePort;
+import net.gecosi.adapter.rxtx.RxtxPort;
 import net.gecosi.dataframe.SiDataFrame;
 import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiDriver;
-import net.gecosi.logbridge.LogFilePort;
-import net.gecosi.rxtxbridge.RxtxPort;
 
 /**
  * @author Simon Denier

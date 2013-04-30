@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi.rxtxbridge;
+package net.gecosi.adapter.rxtx;
 
 import java.io.IOException;
 import java.io.OutputStream;

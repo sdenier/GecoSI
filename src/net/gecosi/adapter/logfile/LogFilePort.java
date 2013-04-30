@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2013 Simon Denier
  */
-package net.gecosi.logbridge;
+package net.gecosi.adapter.logfile;
 
 import gnu.io.UnsupportedCommOperationException;
 

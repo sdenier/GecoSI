@@ -4,8 +4,9 @@
 	
 	<target name="buildnumber">
 		<exec executable="${git.cmd}" outputproperty="build.number">
-			<arg line="describe --all" />
+			<arg line="describe" />
 		</exec>
+		<tstamp />
 		<echo message="BUILD ${build.number}" />
 	</target>
 
