@@ -18,6 +18,13 @@ Specifications
 - Support for SI5/6/6*/8/9/10/11
 - Later: support for memory backup readout
 
+Build Target
+============
+
+```
+  ant build_jar
+```
+
 Usage (Library)
 ===============
 
