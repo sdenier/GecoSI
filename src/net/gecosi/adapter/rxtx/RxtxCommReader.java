@@ -38,9 +38,9 @@ public class RxtxCommReader implements SerialPortEventListener {
 			int nbBytes = this.input.read(answer);
 			if( awaitingSecondFragment() ) {
 				GecoSILogger.debug("Message fragment 2");
-				byte[] messsageFrame = Arrays.copyOf(messageFragment, messageFragment.length + nbBytes);
-				System.arraycopy(answer, 0, messsageFrame, messageFragment.length, nbBytes);
-				queueMessage(new SiMessage(messsageFrame));
+				byte[] messageFrame = Arrays.copyOf(messageFragment, messageFragment.length + nbBytes);
+				System.arraycopy(answer, 0, messageFrame, messageFragment.length, nbBytes);
+				queueMessage(new SiMessage(messageFrame));
 				messageFragment = null;
 			} else {
 				if( messageInOnePiece(answer, nbBytes) ) {
@@ -51,8 +51,8 @@ public class RxtxCommReader implements SerialPortEventListener {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			GecoSILogger.error(" #serialEvent# " + e.toString());
+			e.printStackTrace();
 		}
 	}
 	
