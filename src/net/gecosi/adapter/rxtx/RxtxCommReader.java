@@ -22,55 +22,86 @@ public class RxtxCommReader implements SerialPortEventListener {
 
 	public static final int MAX_MESSAGE_SIZE = 139;
 
+	private static final int METADATA_SIZE = 6;
+	
+	private CommReaderState state;
+
 	private InputStream input;
+
 	private SiMessageQueue messageQueue;
 
-	private byte[] messageFragment;
+	private byte[] accumulator;
+
+	private int accSize;
 
 	public RxtxCommReader(InputStream input, SiMessageQueue messageQueue) {
+		this.state = CommReaderState.READY;
 		this.input = input;
 		this.messageQueue = messageQueue;
+		this.accumulator = new byte[MAX_MESSAGE_SIZE];
+		this.accSize = 0;
 	}
 
 	public void serialEvent(SerialPortEvent event) {
 		try {
-			byte[] answer = new byte[MAX_MESSAGE_SIZE];
-			int nbBytes = this.input.read(answer);
-			if( awaitingSecondFragment() ) {
-				GecoSILogger.debug("Message fragment 2");
-				byte[] messageFrame = Arrays.copyOf(messageFragment, messageFragment.length + nbBytes);
-				System.arraycopy(answer, 0, messageFrame, messageFragment.length, nbBytes);
-				queueMessage(new SiMessage(messageFrame));
-				messageFragment = null;
-			} else {
-				if( messageInOnePiece(answer, nbBytes) ) {
-					queueMessage(extractMessage(answer, nbBytes));
-				} else {
-					GecoSILogger.debug("Message fragment 1");
-					messageFragment = Arrays.copyOfRange(answer, 0, nbBytes);
-				}
-			}
+			accSize += this.input.read(accumulator, accSize, MAX_MESSAGE_SIZE - accSize);
+			this.state = this.state.handle(accumulator, accSize, this);
 		} catch (Exception e) {
 			GecoSILogger.error(" #serialEvent# " + e.toString());
 			e.printStackTrace();
 		}
 	}
 	
-	private boolean messageInOnePiece(byte[] answer, int nbBytes) {
-		return (answer[2] & 0xFF) == nbBytes - 6;
-	}
-
-	private boolean awaitingSecondFragment() {
-		return messageFragment != null;
-	}
-
 	private void queueMessage(SiMessage message) throws InterruptedException {
-		messageQueue.put(message);
 		GecoSILogger.log("READ", message.toString());
+		messageQueue.put(message);
 	}
 
 	private SiMessage extractMessage(byte[] answer, int nbBytes) {
 		return new SiMessage( Arrays.copyOfRange(answer, 0, nbBytes) );
 	}
 
+	private void sendMessage() throws InterruptedException {
+		queueMessage(extractMessage(accumulator, accSize));
+		accumulator = new byte[MAX_MESSAGE_SIZE];
+		accSize = 0;
+	}
+
+	public enum CommReaderState {
+		READY {
+			@Override
+			protected CommReaderState handle(byte[] accumulator, int accSize, RxtxCommReader reader)
+					throws InterruptedException {
+				return checkExpectedLength(accumulator, accSize, reader);
+			}
+		},
+		
+		EXPECTING_FRAGMENT {
+			@Override
+			protected CommReaderState handle(byte[] accumulator, int accSize, RxtxCommReader reader)
+					throws InterruptedException {
+				return checkExpectedLength(accumulator, accSize, reader);
+			}
+		};
+
+		protected abstract CommReaderState handle(byte[] accumulator, int accSize, RxtxCommReader reader)
+				throws InterruptedException;
+
+		protected CommReaderState checkExpectedLength(byte[] accumulator, int accSize, RxtxCommReader reader)
+				throws InterruptedException {
+			if( completeMessage(accumulator, accSize) ){
+				reader.sendMessage();
+				return READY;
+			} else {
+				GecoSILogger.debug("Fragment");
+				return EXPECTING_FRAGMENT;
+			}
+		}
+		
+		protected boolean completeMessage(byte[] answer, int nbBytes) {
+			return (answer[2] & 0xFF) == nbBytes - METADATA_SIZE;
+		}
+
+	}
+	
 }

@@ -61,16 +61,15 @@ public class RxtxCommReaderTest {
 
 	@Test
 	public void messageInMultipleFragments() {
-		fail();
+		byte[] testInput1 = new byte[]{0x02, (byte) 0xF0, 0x03};
+		byte[] testInput2 = new byte[]{0x00, 0x01, 0x4D, 0x0D};
+		byte[] testInput3 = new byte[]{0x11, 0x03};
+		byte[] testOutput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
+		testReaderOutput(new byte[][]{ testInput1, testInput2, testInput3 }, testOutput);
 	}
 	
 	@Test
-	public void messageWithShortPrefix() {
-		fail();
-	}
-	
-	@Test
-	public void timeout() {
+	public void firstFragmentWithoutLengthPrefix() {
 		fail();
 	}
 
@@ -78,7 +77,17 @@ public class RxtxCommReaderTest {
 	public void shortMessage() {
 		fail();
 	}
+	
+	@Test
+	public void timeoutError() {
+		fail();
+	}
 
+	@Test
+	public void tooLongFragmentError() {
+		fail();
+	}
+	
 	private void testReaderOutput(byte[][] testInputs, byte[] expectedOutput) {
 		try {
 			RxtxCommReader subject = subject();

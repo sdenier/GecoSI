@@ -25,10 +25,10 @@ public class MockInputStream extends InputStream {
 	}
 
 	@Override
-	public int read(byte[] answer) throws IOException {
-		int length = Math.min(input.length, answer.length);
-		System.arraycopy(input, 0, answer, 0, length);
+	public int read(byte[] answer, int offset, int len) throws IOException {
+		int length = Math.min(input.length, len);
+		System.arraycopy(input, 0, answer, offset, length);
 		return length;
 	}
-	
+
 }
