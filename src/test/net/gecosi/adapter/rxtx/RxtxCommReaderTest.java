@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import gnu.io.SerialPortEvent;
 import net.gecosi.adapter.rxtx.RxtxCommReader;
 import net.gecosi.internal.GecoSILogger;
@@ -48,7 +49,7 @@ public class RxtxCommReaderTest {
 	@Test
 	public void nomicalCase() {
 		byte[] testInput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
-		testReaderOutput(new byte[][]{ testInput }, testInput);
+		testReaderOutput(new byte[][]{ testInput }, testInput, subject());
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class RxtxCommReaderTest {
 		byte[] testInput1 = new byte[]{0x02, (byte) 0xF0, 0x03};
 		byte[] testInput2 = new byte[]{0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
 		byte[] testOutput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
-		testReaderOutput(new byte[][]{ testInput1, testInput2 }, testOutput);
+		testReaderOutput(new byte[][]{ testInput1, testInput2 }, testOutput, subject());
 	}
 
 	@Test
@@ -65,32 +66,87 @@ public class RxtxCommReaderTest {
 		byte[] testInput2 = new byte[]{0x00, 0x01, 0x4D, 0x0D};
 		byte[] testInput3 = new byte[]{0x11, 0x03};
 		byte[] testOutput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
-		testReaderOutput(new byte[][]{ testInput1, testInput2, testInput3 }, testOutput);
+		testReaderOutput(new byte[][]{ testInput1, testInput2, testInput3 }, testOutput, subject());
 	}
 	
 	@Test
 	public void firstFragmentWithoutLengthPrefix() {
-		fail();
+		byte[] testInput1 = new byte[]{0x02};
+		byte[] testInput2 = new byte[]{(byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D};
+		byte[] testInput3 = new byte[]{0x11, 0x03};
+		byte[] testOutput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
+		testReaderOutput(new byte[][]{ testInput1, testInput2, testInput3 }, testOutput, subject());
 	}
 
+	@Test
+	public void zeroDataMessage() {
+		byte[] testInput1 = new byte[]{0x02};
+		byte[] testInput2 = new byte[]{(byte) 0xF0, 0x00, (byte) 0xF0, 0x00, 0x03};
+		byte[] testOutput = new byte[]{0x02, (byte) 0xF0, 0x00, (byte) 0xF0, 0x00, 0x03};
+		testReaderOutput(new byte[][]{ testInput1, testInput2 }, testOutput, subject());
+	}
+	
+	@Test
+	public void emptyMessage() {
+		RxtxCommReader subject = subject();
+		inputStream.setInput(new byte[0]);
+		subject.serialEvent(triggerEvent);
+		verifyZeroInteractions(messageQueue);
+	}
+	
 	@Test
 	public void shortMessage() {
-		fail();
+		byte[] testInput = new byte[]{0x15};
+		testReaderOutput(new byte[][]{ testInput }, testInput, subject());
 	}
 	
 	@Test
-	public void timeoutError() {
-		fail();
+	public synchronized void timeoutResetsAccumulator() {
+		try {
+			RxtxCommReader subject = new RxtxCommReader(inputStream, messageQueue, 1);
+			byte[] testInput1 = new byte[]{0x02, (byte) 0xF0, 0x03};
+			inputStream.setInput(testInput1);
+			subject.serialEvent(triggerEvent);
+
+			wait(2);
+			byte[] testInput2 = new byte[]{0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
+			inputStream.setInput(testInput2);
+			subject.serialEvent(triggerEvent);
+		
+			verifyZeroInteractions(messageQueue);
+			
+			wait(2);
+			byte[] testInput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
+			testReaderOutput(new byte[][]{ testInput }, testInput, subject);
+		} catch (InterruptedException e) {
+			fail();
+		}
 	}
 
 	@Test
-	public void tooLongFragmentError() {
-		fail();
+	public synchronized void tooLongFragmentResetsAccumulator() {
+		RxtxCommReader subject = new RxtxCommReader(inputStream, messageQueue, 1);
+		byte[] testInput1 = new byte[]{0x02, (byte) 0xF0, 0x03};
+		inputStream.setInput(testInput1);
+		subject.serialEvent(triggerEvent);
+
+		byte[] testInput2 = new byte[]{0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03, (byte) 0xFF};
+		inputStream.setInput(testInput2);
+		subject.serialEvent(triggerEvent);
+		
+		verifyZeroInteractions(messageQueue);
+		
+		try {
+			wait(2);
+			byte[] testInput = new byte[]{0x02, (byte) 0xF0, 0x03, 0x00, 0x01, 0x4D, 0x0D, 0x11, 0x03};
+			testReaderOutput(new byte[][]{ testInput }, testInput, subject);
+		} catch (InterruptedException e) {
+			fail();
+		}
 	}
 	
-	private void testReaderOutput(byte[][] testInputs, byte[] expectedOutput) {
+	private void testReaderOutput(byte[][] testInputs, byte[] expectedOutput, RxtxCommReader subject) {
 		try {
-			RxtxCommReader subject = subject();
 			for (int i = 0; i < testInputs.length; i++) {
 				inputStream.setInput(testInputs[i]);
 				subject.serialEvent(triggerEvent);
