@@ -80,8 +80,12 @@ public class SiHandler implements Runnable {
 	}
 
 	public Thread stop() {
-		driver.interrupt();
-		thread.interrupt();
+		if( driver != null ){
+			driver.interrupt();
+		}
+		if( thread != null ){
+			thread.interrupt();
+		}
 		return thread;
 	}
 
