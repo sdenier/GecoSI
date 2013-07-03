@@ -80,6 +80,26 @@ public class Si5DataFrameTest {
 		assertThat(punches[10].timestamp(), equalTo(Si5DataFrame.NO_TIME));
 		assertThat(punches[35].timestamp(), equalTo(Si5DataFrame.NO_TIME));
 	}
+
+	@Test
+	public void getPunches_withoutStartTime() {
+		SiDataFrame subject = subject304243();
+		assertThat(subject.getStartTime(), equalTo(SiDataFrame.NO_TIME));
+		assertThat(subject.getFinishTime(), equalTo(43704000L));
+		SiPunch[] punches = subject.getPunches();
+		assertThat(punches[0].timestamp(), equalTo(40059000L));
+		assertThat(punches[9].timestamp(), equalTo(40104000L));
+	}
+
+	@Test
+	public void getPunches_withoutStartTime_withMidnightShift() {
+		SiDataFrame subject = subject304243().startingAt(82800000L);
+		assertThat(subject.getStartTime(), equalTo(SiDataFrame.NO_TIME));
+		assertThat(subject.getFinishTime(), equalTo(86904000L));
+		SiPunch[] punches = subject.getPunches();
+		assertThat(punches[0].timestamp(), equalTo(83259000L));
+		assertThat(punches[9].timestamp(), equalTo(83304000L));
+	}
 	
 	@Test
 	public void advanceTimePast_doesNotChangeTimeWhen() {
@@ -102,8 +122,8 @@ public class Si5DataFrameTest {
 		assertThat("Time is unknown", subject.advanceTimePast(0xEEEE * 1000, 0), equalTo(SiDataFrame.NO_TIME));
 	}
 	
-	private Si5DataFrame subject304243() {
-		return new Si5DataFrame(SiMessageFixtures.sicard5_data);
+	private SiDataFrame subject304243() {
+		return new Si5DataFrame(SiMessageFixtures.sicard5_data).startingAt(0);
 	}
 
 	private SiDataFrame subject36353() {

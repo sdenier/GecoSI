@@ -29,13 +29,11 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 	public SiDataFrame startingAt(long zerohour) {
 		startTime = advanceTimePast(rawStartTime(), zerohour);
 		checkTime = advanceTimePast(rawCheckTime(), zerohour);
-		// shift punch times after start
-		punches = computeShiftedPunches(startTime);
-		// at least, advance finish past start time
-		finishTime = advanceTimePast(rawFinishTime(), zerohour);
-		// advance finish past last timed punch if available
+		long refTime = newRefTime(zerohour, startTime);
+		punches = computeShiftedPunches(refTime);
 		SiPunch lastTimedPunch = punches[nbTimedPunches(punches) - 1];
-		finishTime = advanceTimePast(finishTime, lastTimedPunch.timestamp());
+		refTime = newRefTime(refTime, lastTimedPunch.timestamp());
+		finishTime = advanceTimePast(rawFinishTime(), refTime);
 		return this;
 	}
 	
@@ -65,12 +63,16 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 			// shift each punch time after the previous
 			long punchTime = advanceTimePast(getPunchTime(i), refTime);
 			punches[i] = new SiPunch(getPunchCode(i), punchTime);
-			refTime = punchTime;
+			refTime = newRefTime(refTime, punchTime);
 		}
 		for (int i = 0; i < nbPunches - SI5_TIMED_PUNCHES; i++) {
 			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
 		}
 		return punches;
+	}
+
+	private long newRefTime(long refTime, long punchTime) {
+		return punchTime != NO_TIME ? punchTime : refTime;
 	}
 
 	private int nbTimedPunches(SiPunch[] punches) {
