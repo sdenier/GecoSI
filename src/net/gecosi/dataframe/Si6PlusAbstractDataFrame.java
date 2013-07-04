@@ -64,18 +64,18 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 	}
 
 	protected long extractFullTime(int pageStart) {
-		int tdByte = byteAt(pageStart);
-		int weekCounter = (tdByte & 48) >> 4;
-		int numDay = (tdByte & 14) >> 1;
-		int pmFlag = tdByte & 1;
-		return computeFullTime(weekCounter, numDay, pmFlag, timestampAt(pageStart + 2));
+//		int tdByte = byteAt(pageStart);
+//		int weekCounter = (tdByte & 48) >> 4;
+//		int numDay = (tdByte & 14) >> 1;
+		int pmFlag = byteAt(pageStart) & 1;
+		return computeFullTime(pmFlag, timestampAt(pageStart + 2));
 	}
 	
-	public long computeFullTime(int relativeWeek, int numDay, int pmFlag, long twelveHoursTime) {
+	public long computeFullTime(int pmFlag, long twelveHoursTime) {
 		if( twelveHoursTime == NO_SI_TIME ) {
 			return NO_SI_TIME;
 		}
-		return relativeWeek * ONE_WEEK + numDay * ONE_DAY + pmFlag * TWELVE_HOURS + twelveHoursTime;
+		return pmFlag * TWELVE_HOURS + twelveHoursTime;
 	}
 	
 	protected int extractCode(int punchIndex) {

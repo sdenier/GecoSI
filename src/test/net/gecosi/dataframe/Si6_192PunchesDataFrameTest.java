@@ -39,17 +39,17 @@ public class Si6_192PunchesDataFrameTest {
 
 	@Test
 	public void getStartTime() {
-		assertThat(subject821003_192p().getStartTime(), equalTo(295952000L));
+		assertThat(subject821003_192p().getStartTime(), equalTo(36752000L));
 	}
 
 	@Test
 	public void getFinishTime() {
-		assertThat(subject821003_192p().getFinishTime(), equalTo(567084000L));
+		assertThat(subject821003_192p().getFinishTime(), equalTo(48684000L));
 	}
 
 	@Test
 	public void getCheckTime() {
-		assertThat(subject821003_192p().getCheckTime(), equalTo(295950000L));
+		assertThat(subject821003_192p().getCheckTime(), equalTo(36750000L));
 	}
 
 	@Test
@@ -62,18 +62,18 @@ public class Si6_192PunchesDataFrameTest {
 		SiPunch[] punches = subject821003_192p().getPunches();
 		
 		assertThat(punches[0].code(), equalTo(31));
-		assertThat(punches[0].timestamp(), equalTo(295962000L));
+		assertThat(punches[0].timestamp(), equalTo(36762000L));
 		assertThat(punches[1].code(), equalTo(32));
-		assertThat(punches[1].timestamp(), equalTo(295964000L));
+		assertThat(punches[1].timestamp(), equalTo(36764000L));
 		assertThat(punches[32].code(), equalTo(33));
-		assertThat(punches[32].timestamp(), equalTo(296051000L));
+		assertThat(punches[32].timestamp(), equalTo(36851000L));
 		assertThat(punches[63].code(), equalTo(34));
-		assertThat(punches[63].timestamp(), equalTo(296140000L));
+		assertThat(punches[63].timestamp(), equalTo(36940000L));
 		assertThat(punches[99].code(), equalTo(35));
-		assertThat(punches[99].timestamp(), equalTo(296240000L));
+		assertThat(punches[99].timestamp(), equalTo(37040000L));
 		
 		assertThat(punches[100].code(), equalTo(634));
-		assertThat(punches[100].timestamp(), equalTo(567025000L));
+		assertThat(punches[100].timestamp(), equalTo(48625000L));
 	}
 	
 	private SiDataFrame subject821003_192p() {

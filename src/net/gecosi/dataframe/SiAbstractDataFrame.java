@@ -17,8 +17,6 @@ public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 
 	protected final static long ONE_DAY = 2 * TWELVE_HOURS;
 
-	protected final static long ONE_WEEK = 7 * ONE_DAY;
-	
 	protected byte[] dataFrame;
 	
 	protected int byteAt(int i) {

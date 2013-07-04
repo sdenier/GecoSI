@@ -33,17 +33,17 @@ public class Si8DataFrameTest {
 
 	@Test
 	public void getStartTime() {
-		assertThat(subject2005331().getStartTime(), equalTo(2059150000L));
+		assertThat(subject2005331().getStartTime(), equalTo(71950000L));
 	}
 
 	@Test
 	public void getFinishTime() {
-		assertThat(subject2005331().getFinishTime(), equalTo(2059192000L));
+		assertThat(subject2005331().getFinishTime(), equalTo(71992000L));
 	}
 
 	@Test
 	public void getCheckTime() {
-		assertThat(subject2005331().getCheckTime(), equalTo(2059149000L));
+		assertThat(subject2005331().getCheckTime(), equalTo(71949000L));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class Si8DataFrameTest {
 	public void getPunches() {
 		SiPunch[] punches = subject2005331().getPunches();
 		assertThat(punches[0].code(), equalTo(31));
-		assertThat(punches[0].timestamp(), equalTo(2059170000L));
+		assertThat(punches[0].timestamp(), equalTo(71970000L));
 	}
 
 	private SiDataFrame subject2005331() {
