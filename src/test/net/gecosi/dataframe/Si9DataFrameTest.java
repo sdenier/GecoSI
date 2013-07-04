@@ -6,6 +6,7 @@ package test.net.gecosi.dataframe;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import net.gecosi.dataframe.Si8PlusDataFrame;
+import net.gecosi.dataframe.SiDataFrame;
 import net.gecosi.dataframe.SiPunch;
 import net.gecosi.internal.SiMessage;
 
@@ -61,8 +62,8 @@ public class Si9DataFrameTest {
 		assertThat(punches[18].timestamp(), equalTo(648931000L));
 	}
 	
-	private Si8PlusDataFrame subject1061511() {
-		return new Si8PlusDataFrame(new SiMessage[]{ SiMessageFixtures.sicard9_b0_data, SiMessageFixtures.sicard9_b1_data });
+	private SiDataFrame subject1061511() {
+		return new Si8PlusDataFrame(new SiMessage[]{ SiMessageFixtures.sicard9_b0_data, SiMessageFixtures.sicard9_b1_data }).startingAt(0);
 	}
 
 }

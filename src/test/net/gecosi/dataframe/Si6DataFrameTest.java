@@ -64,7 +64,7 @@ public class Si6DataFrameTest {
 	}
 	
 	private SiDataFrame subject821003() {
-		return new Si6DataFrame(new SiMessage[]{ sicard6_b0_data, sicard6_b6_data, sicard6_b7_data });
+		return new Si6DataFrame(new SiMessage[]{ sicard6_b0_data, sicard6_b6_data, sicard6_b7_data }).startingAt(0);
 	}
 
 }

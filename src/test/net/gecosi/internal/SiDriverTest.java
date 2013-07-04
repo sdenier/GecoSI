@@ -31,6 +31,7 @@ import net.gecosi.CommStatus;
 import net.gecosi.SiHandler;
 import net.gecosi.dataframe.Si5DataFrame;
 import net.gecosi.dataframe.Si6DataFrame;
+import net.gecosi.dataframe.SiDataFrame;
 import net.gecosi.internal.GecoSILogger;
 import net.gecosi.internal.SiDriver;
 import net.gecosi.internal.SiMessage;
@@ -126,7 +127,7 @@ public class SiDriverTest {
 		testRunDriver(new SiDriver(siPort, siHandler));
 		ArgumentCaptor<Si6DataFrame> si6Arg = ArgumentCaptor.forClass(Si6DataFrame.class);
 		verify(siHandler).notify(si6Arg.capture());
-		Si6DataFrame si6Data = si6Arg.getValue();
+		SiDataFrame si6Data = si6Arg.getValue().startingAt(0);
 
 		assertThat(si6Data.getNbPunches(), equalTo(101));
 		assertThat(si6Data.getPunches()[0].code(), equalTo(31));

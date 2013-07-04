@@ -40,7 +40,6 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 	public Si8PlusDataFrame(SiMessage[] dataMessages) {
 		super(dataMessages);
 		this.siSeries = extractSiSeries();
-		initializeDataFields();
 	}
 
 	protected SiPlusSeries extractSiSeries() {

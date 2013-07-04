@@ -78,7 +78,7 @@ public class Si6_192PunchesDataFrameTest {
 	
 	private SiDataFrame subject821003_192p() {
 		return new Si6DataFrame(new SiMessage[]{ 	sicard6_192p_b0_data, sicard6_192p_b1_data, sicard6_192p_b6_data, sicard6_192p_b7_data,
-													sicard6_192p_b2_data, sicard6_192p_b3_data, sicard6_192p_b4_data, sicard6_192p_b5_data});
+													sicard6_192p_b2_data, sicard6_192p_b3_data, sicard6_192p_b4_data, sicard6_192p_b5_data}).startingAt(0);
 	}
 
 }

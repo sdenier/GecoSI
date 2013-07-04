@@ -16,6 +16,7 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 
 	public Si6PlusAbstractDataFrame(SiMessage[] dataMessages) {
 		this.dataFrame = extractDataFrame(dataMessages);
+		this.siNumber  = extractSiNumber();
 	}
 
 	protected byte[] extractDataFrame(SiMessage[] dataMessages) {
@@ -26,12 +27,13 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 		return dataFrame;
 	}
 
-	protected void initializeDataFields() {
-		this.siNumber	= extractSiNumber();
+	@Override
+	public SiDataFrame startingAt(long zerohour) {
 		this.startTime	= extractStartTime();
 		this.finishTime	= extractFinishTime();
 		this.checkTime	= extractCheckTime();
 		this.punches	= extractPunches();
+		return this;
 	}
 
 	protected String extractSiNumber() {
@@ -73,11 +75,6 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 		int codeHigh = (byteAt(punchIndex) & 192) << 2;
 		int code = codeHigh + byteAt(punchIndex + 1);
 		return code;
-	}
-
-	@Override
-	public SiDataFrame startingAt(long zerohour) {
-		return this;
 	}
 
 	protected abstract int siNumberIndex();

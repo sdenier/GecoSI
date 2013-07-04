@@ -65,9 +65,9 @@ public class Si10DataFrameTest {
 		assertThat(punches[2].timestamp(), equalTo(1603597000L));
 	}
 	
-	private Si8PlusDataFrame subject7773810() {
+	private SiDataFrame subject7773810() {
 		return new Si8PlusDataFrame(new SiMessage[]{
-				sicard10_b0_data, sicard10_b4_data, sicard10_b5_data, sicard10_b6_data, sicard10_b7_data});
+				sicard10_b0_data, sicard10_b4_data, sicard10_b5_data, sicard10_b6_data, sicard10_b7_data}).startingAt(0);
 	}
 
 }

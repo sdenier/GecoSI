@@ -21,7 +21,6 @@ public class Si6DataFrame extends Si6PlusAbstractDataFrame {
 	public Si6DataFrame(SiMessage[] dataMessages) {
 		super(dataMessages);
 		this.extendedPunches = dataMessages.length == 8;
-		initializeDataFields();
 	}
 
 	@Override
