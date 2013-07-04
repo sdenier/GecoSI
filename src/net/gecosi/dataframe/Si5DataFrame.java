@@ -37,23 +37,10 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 		return this;
 	}
 	
-	public long advanceTimePast(long twelveHoursTime, long refTime) {
-		if( twelveHoursTime == NO_SI_TIME ) {
-			return NO_TIME;
-		}
-		if( refTime == NO_TIME ) {
-			return twelveHoursTime;
-		}
-		long shiftedTime = twelveHoursTime;
-		// advance time until it is at least less than one hour before refTime
-		// accomodates for drifting clocks or even controls with different daylight savings mode
-		long baseTime = refTime - 3600000; 
-		while( shiftedTime < baseTime){
-			shiftedTime += TWELVE_HOURS;
-		}
-		return shiftedTime;
+	public long advanceTimePast(long timestamp, long refTime) {
+		return advanceTimePast(timestamp, refTime, TWELVE_HOURS);
 	}
-	
+
 	private SiPunch[] computeShiftedPunches(long startTime) {
 		int nbPunches = rawNbPunches();
 		SiPunch[] punches = new SiPunch[nbPunches];
@@ -69,10 +56,6 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 			punches[i + SI5_TIMED_PUNCHES] = new SiPunch(getNoTimePunchCode(i), NO_TIME);
 		}
 		return punches;
-	}
-
-	private long newRefTime(long refTime, long punchTime) {
-		return punchTime != NO_TIME ? punchTime : refTime;
 	}
 
 	private int nbTimedPunches(SiPunch[] punches) {

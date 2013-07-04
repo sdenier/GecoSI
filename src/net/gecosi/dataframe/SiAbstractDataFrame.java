@@ -36,5 +36,26 @@ public abstract class SiAbstractDataFrame extends AbstractDataFrame {
 	protected long timestampAt(int i) {
 		return 1000L * wordAt(i);
 	}
-	
+
+	public long advanceTimePast(long timestamp, long refTime, long stepTime) {
+		if( timestamp == NO_SI_TIME ) {
+			return NO_TIME;
+		}
+		if( refTime == NO_TIME ) {
+			return timestamp;
+		}
+		long newTimestamp = timestamp;
+		// advance time until it is at least less than one hour before refTime
+		// accomodates for drifting clocks or even controls with different daylight savings mode
+		long baseTime = refTime - 3600000;
+		while( newTimestamp < baseTime){
+			newTimestamp += stepTime;
+		}
+		return newTimestamp;
+	}
+
+	public long newRefTime(long refTime, long punchTime) {
+		return punchTime != NO_TIME ? punchTime : refTime;
+	}
+
 }

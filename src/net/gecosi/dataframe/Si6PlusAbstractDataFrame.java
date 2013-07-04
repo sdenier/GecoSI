@@ -29,13 +29,20 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 
 	@Override
 	public SiDataFrame startingAt(long zerohour) {
-		this.startTime	= extractStartTime();
-		this.finishTime	= extractFinishTime();
-		this.checkTime	= extractCheckTime();
-		this.punches	= extractPunches();
+		startTime	= advanceTimePast(extractStartTime(), zerohour);
+		checkTime	= advanceTimePast(extractCheckTime(), zerohour);
+		long refTime = newRefTime(zerohour, startTime);
+		punches	= extractPunches(refTime);
+		SiPunch lastPunch = punches[punches.length - 1];
+		refTime = newRefTime(refTime, lastPunch.timestamp());
+		finishTime	= advanceTimePast(extractFinishTime(), refTime);
 		return this;
 	}
 
+	public long advanceTimePast(long timestamp, long refTime) {
+		return advanceTimePast(timestamp, refTime, ONE_DAY);
+	}
+	
 	protected String extractSiNumber() {
 		return Integer.toString(block3At(siNumberIndex()));
 	}
@@ -66,7 +73,7 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 	
 	public long computeFullTime(int relativeWeek, int numDay, int pmFlag, long twelveHoursTime) {
 		if( twelveHoursTime == NO_SI_TIME ) {
-			return NO_TIME;
+			return NO_SI_TIME;
 		}
 		return relativeWeek * ONE_WEEK + numDay * ONE_DAY + pmFlag * TWELVE_HOURS + twelveHoursTime;
 	}
@@ -87,6 +94,6 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 
 	protected abstract int nbPunchesIndex();
 
-	protected abstract SiPunch[] extractPunches();
+	protected abstract SiPunch[] extractPunches(long startTime);
 
 }

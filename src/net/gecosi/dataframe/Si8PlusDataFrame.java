@@ -81,12 +81,15 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 	}
 
 	@Override
-	protected SiPunch[] extractPunches() {
+	protected SiPunch[] extractPunches(long startTime) {
 		SiPunch[] punches = new SiPunch[rawNbPunches()];
 		int punchesStart = siSeries.punchesPageStartIndex();
+		long refTime = startTime;
 		for (int i = 0; i < punches.length; i++) {
 			int punchIndex = (punchesStart + i) * PAGE_SIZE;
-			punches[i] = new SiPunch(extractCode(punchIndex), extractFullTime(punchIndex));
+			long punchTime = advanceTimePast(extractFullTime(punchIndex), refTime);
+			punches[i] = new SiPunch(extractCode(punchIndex), punchTime);
+			refTime = newRefTime(refTime, punchTime);
 		}
 		return punches;
 	}

@@ -53,12 +53,15 @@ public class Si6DataFrame extends Si6PlusAbstractDataFrame {
 	}
 
 	@Override
-	protected SiPunch[] extractPunches() {
+	protected SiPunch[] extractPunches(long startTime) {
 		SiPunch[] punches = new SiPunch[rawNbPunches()];
 		int punchesStart = punchesStartIndex();
+		long refTime = startTime;
 		for (int i = 0; i < punches.length; i++) {
 			int punchIndex = punchesStart + (DOUBLE_WORD * i);
-			punches[i] = new SiPunch(extractCode(punchIndex), extractFullTime(punchIndex));
+			long punchTime = advanceTimePast(extractFullTime(punchIndex), refTime);
+			punches[i] = new SiPunch(extractCode(punchIndex), punchTime);
+			refTime = newRefTime(refTime, punchTime);
 		}
 		return punches;
 	}
