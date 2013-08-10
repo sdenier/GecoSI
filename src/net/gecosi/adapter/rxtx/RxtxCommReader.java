@@ -95,6 +95,7 @@ public class RxtxCommReader implements SerialPortEventListener {
 
 	private void sendMessage() throws InterruptedException {
 		queueMessage(extractMessage(accumulator, accSize));
+		resetAccumulator();
 	}
 
 	private void queueMessage(SiMessage message) throws InterruptedException {
