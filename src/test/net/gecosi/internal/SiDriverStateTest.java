@@ -240,7 +240,16 @@ public class SiDriverStateTest {
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
 		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
 	}
-	
+
+	@Test
+	public void DISPATCH_READY_dispatchesSiCard10PlusIn192PunchesMode() throws Exception {
+		SiDriverState.setSicard6_192PunchesMode(true);
+		
+		queue.add(SiMessageFixtures.sicard10_detected);
+		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+	}
+
 	@Test
 	public void RETRIEVE_SICARD_10_PLUS_DATA() throws Exception {
 		queue.add(SiMessageFixtures.sicard10_b0_data);
@@ -255,7 +264,25 @@ public class SiDriverStateTest {
 		verify(siHandler).notify(any(Si8PlusDataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
-	
+
+	@Test
+	public void RETRIEVE_SICARD_10_PLUS_DATA_192_MODE() throws Exception {
+		queue.add(SiMessageFixtures.sicard10_b0_data);
+		queue.add(SiMessageFixtures.sicard10_b1_data);
+		queue.add(SiMessageFixtures.sicard10_b2_data);
+		queue.add(SiMessageFixtures.sicard10_b3_data);
+		queue.add(SiMessageFixtures.sicard10_b4_data);
+		queue.add(SiMessageFixtures.sicard10_b5_data);
+		queue.add(SiMessageFixtures.sicard10_b6_data);
+		queue.add(SiMessageFixtures.sicard10_b7_data);
+		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_10_PLUS_DATA_192_MODE.retrieve(queue, writer, siHandler);
+
+		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.ack_sequence);
+		verify(siHandler).notify(any(Si8PlusDataFrame.class));
+		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
+	}
+
 	@Test
 	public void WAIT_SICARD_REMOVAL() throws Exception {
 		queue.add(SiMessageFixtures.sicard5_removed);

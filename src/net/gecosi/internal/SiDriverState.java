@@ -129,7 +129,11 @@ public enum SiDriverState {
 		private SiDriverState dispatchSicard8Plus(SiMessage message, SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
 			if( message.sequence(SiMessage.SI3_NUMBER_INDEX) == SiMessage.SI_CARD_10_PLUS_SERIES ) {
-				return RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
+				if( sicard6_192PunchesMode() ) {
+					return RETRIEVE_SICARD_10_PLUS_DATA_192_MODE.retrieve(queue, writer, siHandler);
+				} else {
+					return RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
+				}
 			} else {
 				return RETRIEVE_SICARD_8_9_DATA.retrieve(queue, writer, siHandler);
 			}
@@ -208,7 +212,25 @@ public enum SiDriverState {
 			return new Si8PlusDataFrame(dataMessages);
 		}
 	},
-	
+
+	RETRIEVE_SICARD_10_PLUS_DATA_192_MODE {
+		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
+				throws IOException, InterruptedException {
+			final int nbDataMessages = 8; // read blocks 0..7
+			return retrieveDataMessages(queue, writer, siHandler,
+										SiMessage.read_sicard_10_plus_b8, nbDataMessages, "Timeout on retrieving SiCard 10/11/SIAC data");
+		}
+
+		@Override
+		public SiDataFrame createDataFrame(SiMessage[] dataMessages) {
+			final int nbDataBlocks = 5; // extract blocks 0, 4..7
+			SiMessage[] reorderedMessages = new SiMessage[nbDataBlocks];
+			System.arraycopy(dataMessages, 0, reorderedMessages, 0, 1);
+			System.arraycopy(dataMessages, 4, reorderedMessages, 1, 4);
+			return new Si8PlusDataFrame(reorderedMessages);
+		}
+	},
+
 	ACK_READ {
 		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.ack_sequence);
