@@ -13,10 +13,14 @@ Some parts released by SPORTident under the CC BY 3.0 license. http://creativeco
 Specifications
 ==============
 
+v1.0.0
+------
+
 - Only support extended protocol (BSx7/BSx8 stations with firmware 580+), no base protocol support
 - Support handshake mode, not autosend
 - Support for SI5/6/6*/8/9/10/11
-- Later: support for memory backup readout
+- Support for 192 punches mode
+- Todo: support for memory backup readout
 
 Build Target
 ============
