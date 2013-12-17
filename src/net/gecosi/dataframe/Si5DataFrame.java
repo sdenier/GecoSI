@@ -31,8 +31,10 @@ public class Si5DataFrame extends SiAbstractDataFrame {
 		checkTime = advanceTimePast(rawCheckTime(), zerohour);
 		long refTime = newRefTime(zerohour, startTime);
 		punches = computeShiftedPunches(refTime);
-		SiPunch lastTimedPunch = punches[nbTimedPunches(punches) - 1];
-		refTime = newRefTime(refTime, lastTimedPunch.timestamp());
+		if( punches.length > 0) {
+			SiPunch lastTimedPunch = punches[nbTimedPunches(punches) - 1];
+			refTime = newRefTime(refTime, lastTimedPunch.timestamp());
+		}
 		finishTime = advanceTimePast(rawFinishTime(), refTime);
 		return this;
 	}

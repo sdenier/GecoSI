@@ -33,8 +33,10 @@ public abstract class Si6PlusAbstractDataFrame extends SiAbstractDataFrame {
 		checkTime	= advanceTimePast(extractCheckTime(), zerohour);
 		long refTime = newRefTime(zerohour, startTime);
 		punches	= extractPunches(refTime);
-		SiPunch lastPunch = punches[punches.length - 1];
-		refTime = newRefTime(refTime, lastPunch.timestamp());
+		if( punches.length > 0 ) {
+			SiPunch lastPunch = punches[punches.length - 1];
+			refTime = newRefTime(refTime, lastPunch.timestamp());
+		}
 		finishTime	= advanceTimePast(extractFinishTime(), refTime);
 		return this;
 	}
