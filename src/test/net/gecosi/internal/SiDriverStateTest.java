@@ -59,7 +59,7 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.startup_answer);
 		SiDriverState nextState = SiDriverState.STARTUP_CHECK.receive(queue, writer, siHandler);
 
-		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_CHECK));
+		assertThat(nextState, equalTo(SiDriverState.CONFIG_CHECK));
 		verify(writer).write(SiMessage.get_protocol_configuration);
 	}
 
@@ -75,21 +75,29 @@ public class SiDriverStateTest {
 	}
 
 	@Test
-	public void EXTENDED_PROTOCOL_CHECK() throws Exception {
+	public void CONFIG_CHECK() throws Exception {
 		queue.add(SiMessageFixtures.ok_ext_protocol_answer);
-		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.CONFIG_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.SI6_CARDBLOCKS_SETTING));
 	}
 
 	@Test
-	public void EXTENDED_PROTOCOL_CHECK_failsOnExtendedProtocolCheck() throws Exception {
+	public void CONFIG_CHECK_failsOnExtendedProtocol() throws Exception {
 		queue.add(SiMessageFixtures.no_ext_protocol_answer);
-		SiDriverState nextState = SiDriverState.EXTENDED_PROTOCOL_CHECK.receive(queue, writer, siHandler);
+		SiDriverState nextState = SiDriverState.CONFIG_CHECK.receive(queue, writer, siHandler);
 
 		assertThat(nextState, equalTo(SiDriverState.EXTENDED_PROTOCOL_ERROR));
 	}
 
+	@Test
+	public void CONFIG_CHECK_failsOnHandshakeMode() throws Exception {
+		queue.add(SiMessageFixtures.no_handshake_answer);
+		SiDriverState nextState = SiDriverState.CONFIG_CHECK.receive(queue, writer, siHandler);
+
+		assertThat(nextState, equalTo(SiDriverState.HANDSHAKE_MODE_ERROR));
+	}
+	
 	@Test
 	public void SI6_CARDBLOCKS_SETTING_64PunchesMode() throws Exception {
 		queue.add(SiMessageFixtures.si6_64_punches_answer);

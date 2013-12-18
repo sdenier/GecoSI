@@ -45,18 +45,22 @@ public enum SiDriverState {
 	GET_CONFIG {
 		public SiDriverState send(CommWriter writer, SiHandler siHandler) throws IOException {
 			writer.write(SiMessage.get_protocol_configuration);
-			return EXTENDED_PROTOCOL_CHECK;
+			return CONFIG_CHECK;
 		}
 	},
 
-	EXTENDED_PROTOCOL_CHECK {
+	CONFIG_CHECK {
 		public SiDriverState receive(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException, TimeoutException, InvalidMessage {
 			SiMessage message = pollAnswer(queue, SiMessage.GET_SYSTEM_VALUE);
-			if( (message.sequence(6) & EXTENDED_PROTOCOL_MASK) != 0 ) {
+			byte cpcByte = message.sequence(6);
+			if( (cpcByte & CONFIG_CHECK_MASK) == CONFIG_CHECK_MASK ) {
 				return GET_SI6_CARDBLOCKS.send(writer, siHandler);
-			} else {
+			}
+			if( (cpcByte & EXTENDED_PROTOCOL_MASK) == 0 ){
 				return EXTENDED_PROTOCOL_ERROR;
+			} else {
+				return HANDSHAKE_MODE_ERROR;
 			}
 		}
 	},
@@ -65,6 +69,13 @@ public enum SiDriverState {
 		public boolean isError() { return true; }
 		public String status() {
 			return "Master station should be configured with extended protocol";
+		}
+	},
+
+	HANDSHAKE_MODE_ERROR {
+		public boolean isError() { return true; }
+		public String status() {
+			return "Master station should be configured in handshake mode (no autosend)";
 		}
 	},
 	
@@ -255,6 +266,10 @@ public enum SiDriverState {
 
 	private static final int EXTENDED_PROTOCOL_MASK = 1;
 
+	private static final int HANDSHAKE_MODE_MASK = 4;
+
+	private static final int CONFIG_CHECK_MASK = EXTENDED_PROTOCOL_MASK | HANDSHAKE_MODE_MASK;
+	
 	private static boolean si6_192PunchesMode = false;
 
 	public static boolean sicard6_192PunchesMode() {
