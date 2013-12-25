@@ -17,6 +17,8 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 	
 	private static final int SINUMBER_PAGE = 6 * PAGE_SIZE;
 
+	public static final int NB_PUNCHES_INDEX = 5 * PAGE_SIZE + 2;
+
 	public static enum SiPlusSeries {
 		SI8_SERIES ("SiCard 8", 34),
 		SI9_SERIES ("SiCard 9", 14),
@@ -77,7 +79,7 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 
 	@Override
 	protected int nbPunchesIndex() {
-		return 5 * PAGE_SIZE + 2;
+		return NB_PUNCHES_INDEX;
 	}
 
 	@Override
