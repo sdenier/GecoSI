@@ -141,8 +141,8 @@ public enum SiDriverState {
 	RETRIEVE_SICARD_5_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
-			return retrieveDataMessages(queue, writer, siHandler,
-										SiMessage.read_sicard_5, 1, "Timeout on retrieving SiCard 5 data");
+			return retrieveDataMessages(queue, writer, siHandler, new SiMessage[]{ SiMessage.read_sicard_5 },
+										"Timeout on retrieving SiCard 5 data");
 		}
 
 		public Si5DataFrame createDataFrame(SiMessage[] dataMessages) {
@@ -174,25 +174,6 @@ public enum SiDriverState {
 		}
 	},
 
-	RETRIEVE_SICARD_6_8BLOCKS_DATA {
-		private final int nbDataMessages = 8;
-
-		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-				throws IOException, InterruptedException {
-			return retrieveDataMessages(queue, writer, siHandler,
-										SiMessage.read_sicard_6_b8, nbDataMessages, "Timeout on retrieving SiCard 6 (192p) data");
-		}
-
-		@Override
-		public SiDataFrame createDataFrame(SiMessage[] dataMessages) {
-			SiMessage[] reorderedMessages = new SiMessage[nbDataMessages];
-			System.arraycopy(dataMessages, 0, reorderedMessages, 0, 2);
-			System.arraycopy(dataMessages, 6, reorderedMessages, 2, 2);
-			System.arraycopy(dataMessages, 2, reorderedMessages, 4, 4);
-			return new Si6DataFrame(reorderedMessages);
-		}
-	},
-	
 	RETRIEVE_SICARD_8_9_DATA {
 		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
 				throws IOException, InterruptedException {
@@ -226,24 +207,6 @@ public enum SiDriverState {
 		@Override
 		public SiDataFrame createDataFrame(SiMessage[] dataMessages) {
 			return new Si8PlusDataFrame(dataMessages);
-		}
-	},
-
-	RETRIEVE_SICARD_10_PLUS_DATA_192_MODE {
-		public SiDriverState retrieve(SiMessageQueue queue, CommWriter writer, SiHandler siHandler)
-				throws IOException, InterruptedException {
-			final int nbDataMessages = 8; // read blocks 0..7
-			return retrieveDataMessages(queue, writer, siHandler,
-										SiMessage.read_sicard_10_plus_b8, nbDataMessages, "Timeout on retrieving SiCard 10/11/SIAC data");
-		}
-
-		@Override
-		public SiDataFrame createDataFrame(SiMessage[] dataMessages) {
-			final int nbDataBlocks = 5; // extract blocks 0, 4..7
-			SiMessage[] reorderedMessages = new SiMessage[nbDataBlocks];
-			System.arraycopy(dataMessages, 0, reorderedMessages, 0, 1);
-			System.arraycopy(dataMessages, 4, reorderedMessages, 1, 4);
-			return new Si8PlusDataFrame(reorderedMessages);
 		}
 	},
 
@@ -353,24 +316,6 @@ public enum SiDriverState {
 			for (int i = 1; i < nbDataBlocks; i++) {
 				readoutCommand = readoutCommands[i];
 				writer.write(readoutCommand);
-				dataMessages[i] = pollAnswer(queue, readoutCommand.commandByte());
-			}
-			siHandler.notify(createDataFrame(dataMessages));
-			return ACK_READ.send(writer, siHandler);
-		} catch (TimeoutException e) {
-			return errorFallback(siHandler, timeoutMessage);
-		} catch (InvalidMessage e) {
-			return errorFallback(siHandler, "Invalid message: " + e.receivedMessage().toString());
-		}
-	}
-
-	protected SiDriverState retrieveDataMessages(SiMessageQueue queue, CommWriter writer, SiHandler siHandler,
-			SiMessage readoutCommand, int nbDataMessages, String timeoutMessage) throws IOException, InterruptedException {
-		try {
-			GecoSILogger.stateChanged(name());
-			SiMessage[] dataMessages = new SiMessage[nbDataMessages];
-			writer.write(readoutCommand);
-			for (int i = 0; i < dataMessages.length; i++) {
 				dataMessages[i] = pollAnswer(queue, readoutCommand.commandByte());
 			}
 			siHandler.notify(createDataFrame(dataMessages));
