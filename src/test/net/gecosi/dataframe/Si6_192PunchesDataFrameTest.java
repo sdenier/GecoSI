@@ -6,11 +6,8 @@ package test.net.gecosi.dataframe;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b0_data;
-import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b1_data;
 import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b2_data;
 import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b3_data;
-import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b4_data;
-import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b5_data;
 import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b6_data;
 import static test.net.gecosi.SiMessageFixtures.sicard6_192p_b7_data;
 import net.gecosi.dataframe.Si6DataFrame;
@@ -77,8 +74,8 @@ public class Si6_192PunchesDataFrameTest {
 	}
 	
 	private SiDataFrame subject821003_192p() {
-		return new Si6DataFrame(new SiMessage[]{ 	sicard6_192p_b0_data, sicard6_192p_b1_data, sicard6_192p_b6_data, sicard6_192p_b7_data,
-													sicard6_192p_b2_data, sicard6_192p_b3_data, sicard6_192p_b4_data, sicard6_192p_b5_data}).startingAt(0);
+		return new Si6DataFrame(new SiMessage[]{ 	sicard6_192p_b0_data, sicard6_192p_b6_data, sicard6_192p_b7_data,
+													sicard6_192p_b2_data, sicard6_192p_b3_data}).startingAt(0);
 	}
 
 }

@@ -8,6 +8,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeoutException;
@@ -26,6 +28,7 @@ import net.gecosi.internal.SiMessageQueue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -179,7 +182,7 @@ public class SiDriverStateTest {
 		
 		queue.add(SiMessageFixtures.sicard6_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-		verify(writer).write(SiMessage.read_sicard_6_b8);
+		verify(writer).write(SiMessage.read_sicard_6_b0);
 	}
 
 	@Test
@@ -191,7 +194,7 @@ public class SiDriverStateTest {
 
 		verify(writer).write(SiMessage.read_sicard_6_b0);
 		verify(writer).write(SiMessage.read_sicard_6_b6);
-		verify(writer).write(SiMessage.read_sicard_6_b7);
+		verify(writer, never()).write(SiMessage.read_sicard_6_b7);
 		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si6DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
@@ -209,8 +212,15 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard6_192p_b7_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_6_DATA.retrieve(queue, writer, siHandler);
 
-		verify(writer).write(SiMessage.read_sicard_6_b8);
-		verify(writer).write(SiMessage.ack_sequence);
+		InOrder inOrder = inOrder(writer);
+		inOrder.verify(writer).write(SiMessage.read_sicard_6_b0);
+		inOrder.verify(writer).write(SiMessage.read_sicard_6_b6);
+		inOrder.verify(writer).write(SiMessage.read_sicard_6_b7);
+		inOrder.verify(writer).write(SiMessage.read_sicard_6_plus_b2);
+		inOrder.verify(writer).write(SiMessage.read_sicard_6_plus_b3);
+		verify(writer, never()).write(SiMessage.read_sicard_6_plus_b4);
+		verify(writer, never()).write(SiMessage.read_sicard_6_plus_b5);
+		inOrder.verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si6DataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
@@ -239,14 +249,14 @@ public class SiDriverStateTest {
 	public void DISPATCH_READY_dispatchesSiCard10() throws Exception {
 		queue.add(SiMessageFixtures.sicard10_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b0);
 	}
 
 	@Test
 	public void DISPATCH_READY_dispatchesSiCard11() throws Exception {
 		queue.add(SiMessageFixtures.sicard11_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b0);
 	}
 
 	@Test
@@ -255,7 +265,7 @@ public class SiDriverStateTest {
 		
 		queue.add(SiMessageFixtures.sicard10_detected);
 		SiDriverState.DISPATCH_READY.receive(queue, writer, siHandler);
-		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b0);
 	}
 
 	@Test
@@ -267,8 +277,13 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard10_b7_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
 
-		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
-		verify(writer).write(SiMessage.ack_sequence);
+		InOrder inOrder = inOrder(writer);
+		inOrder.verify(writer).write(SiMessage.read_sicard_10_plus_b0);
+		inOrder.verify(writer).write(SiMessage.read_sicard_10_plus_b4);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b5);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b6);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b7);
+		inOrder.verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si8PlusDataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
 	}
@@ -285,7 +300,11 @@ public class SiDriverStateTest {
 		queue.add(SiMessageFixtures.sicard10_b7_data);
 		SiDriverState nextState = SiDriverState.RETRIEVE_SICARD_10_PLUS_DATA.retrieve(queue, writer, siHandler);
 
-		verify(writer).write(SiMessage.read_sicard_10_plus_b8);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b0);
+		verify(writer).write(SiMessage.read_sicard_10_plus_b4);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b5);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b6);
+		verify(writer, never()).write(SiMessage.read_sicard_10_plus_b7);
 		verify(writer).write(SiMessage.ack_sequence);
 		verify(siHandler).notify(any(Si8PlusDataFrame.class));
 		assertThat(nextState, equalTo(SiDriverState.WAIT_SICARD_REMOVAL));
