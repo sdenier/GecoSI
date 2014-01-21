@@ -10,17 +10,23 @@ Distributed under the MIT license (see LICENSE file).
 
 Some parts released by SPORTident under the CC BY 3.0 license. http://creativecommons.org/licenses/by/3.0/
 
-Specifications
-==============
+Changelog
+=========
+
+v1.1.0
+------
+
+- Faster and more reliable card readouts for SI6/6*/10/11/SIAC
+- Check that station is in handshake mode at startup (as well as using the extended protocol)
+- Fix bug when reading an empty card
 
 v1.0.0
 ------
 
 - Only support extended protocol (BSx7/BSx8 stations with firmware 580+), no base protocol support
 - Support handshake mode, not autosend
-- Support for SI5/6/6*/8/9/10/11
+- Support for SI5/6/6*/8/9/10/11/SIAC
 - Support for 192 punches mode
-- Todo: support for memory backup readout
 
 Build Target
 ============
