@@ -1,7 +1,7 @@
 GecoSI
 ======
 
-Copyright (c) 2013 Simon Denier.
+Copyright (c) 2013-2014 Simon Denier.
 
 Open-source Java library to use the SPORTident timing system.
 Developed for Geco http://github.com/sdenier/Geco
@@ -12,6 +12,11 @@ Some parts released by SPORTident under the CC BY 3.0 license. http://creativeco
 
 Changelog
 =========
+
+v1.2.0
+------
+
+- Support for pCard
 
 v1.1.0
 ------

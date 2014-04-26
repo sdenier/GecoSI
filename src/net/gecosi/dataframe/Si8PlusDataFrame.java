@@ -23,6 +23,7 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 		SI8_SERIES ("SiCard 8", 34),
 		SI9_SERIES ("SiCard 9", 14),
 		SI10PLUS_SERIES ("SiCard 10/11/SIAC", 32),
+		PCARD_SERIES ("pCard", 44),
 		UNKNOWN_SERIES ("Unknown", 0);
 		
 		private String ident;
@@ -50,6 +51,8 @@ public class Si8PlusDataFrame extends Si6PlusAbstractDataFrame {
 				return SiPlusSeries.SI8_SERIES;
 			case 1 :
 				return SiPlusSeries.SI9_SERIES;
+			case 4 :
+				return SiPlusSeries.PCARD_SERIES;
 			case 15 :
 				return SiPlusSeries.SI10PLUS_SERIES;
 			default :
