@@ -10,6 +10,11 @@ Distributed under the MIT license (see LICENSE file).
 
 Some parts released by SPORTident under the CC BY 3.0 license. http://creativecommons.org/licenses/by/3.0/
 
+C#.Net Port
+-----------
+
+Thanks to Yannis Guedel, there is a port of [GecoSI](https://github.com/yannisgu/GecoSI.Net) to the .Net framework.
+
 Changelog
 =========
 
