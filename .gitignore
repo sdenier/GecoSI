@@ -6,3 +6,4 @@
 *.ear
 /archives
 /raw_output
+/bin/
